@@ -189,31 +189,20 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
     useFoldersForAlbum - if files should simply download in the output directory or if they can be downloaded
     plainLyrics - if the lrc file should be compressed into a plain lyrics paragraph and embedded into the file's metadata (which some formats like ID3 should support)
     '''
+    
+    ''' this older algorithm downloaded all required individual song cache files BEFORE presenting the user with the available songs to download, potentially a bad idea to do it like this 
     songs = [] #songs and all appropriate download links and metadata
     match download_method:
         case DownloadMethod.SINGLE:
             songs_raw = [] # songs only without album cover data
             for song in data_songs['data']['list']:
-                if (name.isdigit() == True):
-                    '''
-                    if (name == song['cid']): #Will return multiple as we are checking if a substring of this exists
-                        full_data = msr_get_song_single_cid(song['cid'])
-                        songs_raw.append(full_data)
-                        #print(song)
-                    if (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
-                        full_data = msr_get_song_single_cid(song['cid'])
-                        songs_raw.append(full_data)
-                    '''
-                    pass
-                else:
-                    if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
-                        full_data = msr_get_song_single_cid(song['cid'])
-                        songs_raw.append(full_data)
-                        #print(song)
-                    elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
-                        full_data = msr_get_song_single_cid(song['cid'])
-                        songs_raw.append(full_data)
-                    
+                if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
+                    full_data = msr_get_song_single_cid(song['cid'])
+                    songs_raw.append(full_data)
+                    #print(song)
+                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
+                    full_data = msr_get_song_single_cid(song['cid'])
+                    songs_raw.append(full_data)            
             for song in songs_raw: #a pass through to find the appropriate album image artwork and album name
                 for album in data_albums['data']:
                     if (album['cid'] == song['albumCid']):
@@ -269,6 +258,62 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
         else:
             print("Exiting...")
             return
+    '''
+    
+    songs_found = []
+    match download_method:
+        case DownloadMethod.SINGLE:
+            for song in data_songs['data']['list']:
+                if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
+                    songs_found.append(song)
+                    #print(song)
+                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
+                    songs_found.append(song)            
+
+        case DownloadMethod.ALBUM:
+            album_cid = "" #intermediate data
+            for album in data_albums['data']:
+                if (album['name'] == name):
+                    album_cid = album['cid']
+                    break
+            for song in data_songs['data']['list']:
+                if (song['albumCid'] == album_cid):
+                    songs_found.append(song)
+            #print(songs) 
+        case _:
+            print("ERROR: proper download method not specified")
+
+    
+    #present user with download options and ask them if they wish to proceed (if there were any songs found at all)
+    if (len(songs_found) != 0):
+        #show the names of songs to download and allow the user to make a Y/N choice wheather to continue
+        print(console_gui_utils.bcolors.OKGREEN + str(len(songs_found)) + " songs were found matching search criteria, they are:" + console_gui_utils.bcolors.ENDC)
+        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        for song in songs_found:
+                print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['name'] + console_gui_utils.bcolors.ENDC)
+        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        user_confirmation = input("do you wish to continue to downloads? Y/N ")
+        if (user_confirmation == "Y"):
+            print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + DATA_DOWNLOAD_FOLDER_PATH + ")" + console_gui_utils.bcolors.ENDC)
+        else:
+            print("Exiting...")
+            return       
+    else:
+        print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
+
+    #extraction of full metadata details (i.e coverURL, contentURL, etc...) for each song
+    songs = [] #songs and all appropriate download links and metadata
+    for song in songs_found:
+        full_song_data = msr_get_song_single_cid(song['cid']) #make a request to their API
+        for album in data_albums['data']:
+            if (album['cid'] == song['albumCid']):
+                songs.append({
+                    "songMetaData": full_song_data,
+                    "coverImgUrl": album['coverUrl'],
+                    "albumName": album['name'],
+                    "albumArtists": album["artistes"] #usually just MSR but may be more            
+                })
+                break
 
     console_gui_utils.console_header("Song/Album Download/File Conversion and Metadata Fill")
     #2 download routine, batch download everything
@@ -371,10 +416,10 @@ def test():
 
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan Obliteration", exact=True, file_format=FileFormat.FLAC, lyrics=True)
     #user_download(download_method=DownloadMethod.SINGLE, name="Heavenly Me", exact=True, file_format=FileFormat.FLAC, lyrics=True) #song has multiple song artists
-    #user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
+    user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
 
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show nothing
-    user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
+    #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
 
 if __name__ == "__main__":
     #initialization
