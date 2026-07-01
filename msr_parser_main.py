@@ -1,0 +1,390 @@
+from enum import Enum
+import sys
+import time
+
+import requests
+import json
+import os
+
+import ffmpeg_exec_controls
+import audio_metadata_tagging
+import console_gui_utils
+
+from tqdm import tqdm
+
+#type MSR_file_dat = tuple[float, float]
+
+#api paths
+MSR_SONG_PATH = r"https://monster-siren.hypergryph.com/api/song/"
+
+MSR_ALL_SONGS_PATH  = r"https://monster-siren.hypergryph.com/api/songs"
+MSR_ALL_ALBUMS_PATH  = r"https://monster-siren.hypergryph.com/api/albums"
+
+#data paths
+CID_SONG_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_song_cache.json"))
+CID_ALBUM_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_album_cache.json"))
+DATA_DOWNLOAD_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./output/"))
+
+CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
+
+
+GLOBAL_REQUESTS_HEADER = {'user-agent': 'MSR-Python-CLI-Downloader/V0.1 (email:jacky.zhang404@gmail.com gitrepo:)'}
+GLOBAL_TIMEOUT = 5
+GLOBAL_RECONNECT_TIMER = 2.5
+
+def create_folders():
+    '''
+    Simply the default folders if they don't exist
+
+    Refs:
+    -- https://stackoverflow.com/questions/70235696/checking-folder-and-if-it-doesnt-exist-create-it
+    -- https://stackoverflow.com/questions/73207617/remove-file-name-and-extension-from-path-and-just-keep-path
+    '''
+    console_gui_utils.console_sub_header("Setting up folders (if needed)")
+    
+    #kinda stupid to hardcode each folder like this but theres really only 3 folders to do this to so whatever
+    if not os.path.exists(os.path.dirname(CID_SONG_CACHE_FILE_PATH)): #recursively create any unknown directories
+        print(console_gui_utils.bcolors.OKGREEN + "created JSON cache folder" + console_gui_utils.bcolors.ENDC)
+        os.makedirs(os.path.dirname(CID_SONG_CACHE_FILE_PATH))
+    else:
+        print(console_gui_utils.bcolors.OKGREEN + "cache exists already" + console_gui_utils.bcolors.ENDC)
+    if not os.path.exists((DATA_DOWNLOAD_FOLDER_PATH)): #recursively create any unknown directories
+        print(console_gui_utils.bcolors.OKGREEN + "created song output folder" + console_gui_utils.bcolors.ENDC)
+        os.makedirs((DATA_DOWNLOAD_FOLDER_PATH))
+    else:
+        print(console_gui_utils.bcolors.OKGREEN + "song output exists already" + console_gui_utils.bcolors.ENDC)
+    if not os.path.exists((CACHE_DOWNLOAD_SONG_FOLDER_PATH)): #recursively create any unknown directories
+        print(console_gui_utils.bcolors.OKGREEN + "created specific song output folder" + console_gui_utils.bcolors.ENDC)
+        os.makedirs((CACHE_DOWNLOAD_SONG_FOLDER_PATH))
+    else:
+        print(console_gui_utils.bcolors.OKGREEN + "specific song JSON cache exists already" + console_gui_utils.bcolors.ENDC)
+
+#def write_json_to_file(content, path):
+#    pass
+
+# --------------
+
+#Content Retrieval and Parsing Methods
+def save_json_msr(data_type: str, file_output_path: str):
+    '''
+        requests content at msr API, will check if request times out or if there was a general connection error (i.e user doesn't have internet) and will recursively continue connecting
+        until successful or user quits
+
+        Keyword arguments:
+        data_type -- simply the url to request data file
+        file_output_path -- where data file should be stored
+    '''
+
+    print("(REMOVE ON BUILD) request was made")
+    print(console_gui_utils.bcolors.WARNING + "Waiting one second before making API call" + console_gui_utils.bcolors.ENDC)
+    time.sleep(1)
+    try:
+        print(console_gui_utils.bcolors.OKGREEN + "Downloading a metadata json from ("+data_type+") " + console_gui_utils.bcolors.ENDC)
+        r = requests.get(data_type, headers=GLOBAL_REQUESTS_HEADER, timeout=GLOBAL_TIMEOUT)
+    except requests.exceptions.Timeout as e:
+        print (console_gui_utils.bcolors.FAIL + "took too long (timed out for "+GLOBAL_TIMEOUT+" seconds) to request data at: " + str(e) + " Will make another attempt in "+str(GLOBAL_RECONNECT_TIMER)+" second (if not working, close program with CTRL+C):" + console_gui_utils.bcolors.ENDC)
+        time.sleep(GLOBAL_RECONNECT_TIMER)
+        save_json_msr(data_type, file_output_path)
+        return
+    except requests.exceptions.ConnectionError as e:
+        print (console_gui_utils.bcolors.FAIL + "General connection error: " + str(e) + " Will make another attempt in "+str(GLOBAL_RECONNECT_TIMER)+" second (if not working, close program with CTRL+C):" + console_gui_utils.bcolors.ENDC)
+        time.sleep(GLOBAL_RECONNECT_TIMER)
+        save_json_msr(data_type, file_output_path)
+        return
+    
+    r.raise_for_status()
+    data = json.loads(r.text)
+    #print (data)
+    with open(file_output_path, "w+") as file: #w+ in case file doesn't exist
+        json.dump(data, file, indent=2)
+
+def msr_get_all_cid(get_from_api: bool = False):
+    '''
+    Retrieves a list of all content ids (and associated info) of both songs and albums then stores them locally (to avoid having to constantly ping their servers for stuff)
+    params:
+    get_from_api: bool - force retrieve from public api even if a local cache of data exists
+    '''
+
+    console_gui_utils.console_sub_header("Album and Song CID retrieval")
+    if (os.path.isfile(CID_SONG_CACHE_FILE_PATH) == False or (get_from_api == True)):
+        console_gui_utils.console_header("Song contentID and master list Download")
+        if (get_from_api == True):
+            print ("force retrieving songs cache from MSR api:")
+        else:
+            print ("local content cache does not exist, requesting SONG data from msr API:")
+        save_json_msr(MSR_ALL_SONGS_PATH, CID_SONG_CACHE_FILE_PATH)
+        print ("success \n ------------------------------------")
+    if (os.path.isfile(CID_ALBUM_CACHE_FILE_PATH) == False or (get_from_api == True)):
+        console_gui_utils.console_header("Album contentID and master list Download")
+        if (get_from_api == True):
+            print ("force retrieving songs cache from MSR api:")
+        else:
+            print ("local content cache does not exist, requesting ALBUM data from msr API:")
+        save_json_msr(MSR_ALL_ALBUMS_PATH, CID_ALBUM_CACHE_FILE_PATH)
+        print ("success \n ------------------------------------")
+
+    print (console_gui_utils.bcolors.OKGREEN + "local data exists now, retrieving jsons now" + console_gui_utils.bcolors.ENDC)
+    with open(CID_SONG_CACHE_FILE_PATH, "r") as file:
+        data_songs = json.load(file)
+        file.close()
+    with open(CID_ALBUM_CACHE_FILE_PATH, "r") as file:
+        data_albums = json.load(file)
+        file.close()
+    #print (data_songs)
+    return data_songs, data_albums
+
+def msr_get_song_single_cid(cid: str) -> dict:
+    '''
+    because the URLs to the lrc and wav files are hidden in the individual song api JSONs and not in the master JSON list, we must request this for each song we find in user downloads
+    '''
+    data = None
+    if (os.path.isfile(os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json")) == False):
+        print ("(NOTE TO SELF, REMOVE THIS DURING PRODUCTION BUILD) downloading individual song JSON of cId: " + cid)
+        save_json_msr(MSR_SONG_PATH + cid, os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json"))
+        #print (json.loads(r.text))
+    else:
+        print("(NOTE TO SELF, REMOVE THIS DURING PRODUCTION BUILD) local cache of song JSON exists of cId: " + cid)
+    with open(os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json"), "r") as file:
+        json_raw = json.load(file)
+        #print (data['data'])
+        data = json_raw['data']
+        file.close()
+
+    return data #ignore the code and msg that the api prints out
+    
+class DownloadMethod(Enum):
+    SINGLE = "single"
+    ALBUM = "album"
+    METADATA_ONLY_SINGLE = "metadata_only_single" #option to simply download the song's cover image as a image file as well as a text file containing relevant metadata 
+
+class FileFormat(Enum):
+    FLAC = "flac"
+    MP3 = "mp3"
+    WAV = "wav"
+
+def user_download(download_method: DownloadMethod, name: str, exact: bool, file_format: FileFormat, lyrics: bool, watermark: bool = True):
+    console_gui_utils.console_header("Song/Album Search")
+    data_songs, data_albums = msr_get_all_cid()
+    '''
+    should be the main part of the program (but after the part where user args are parsed (i.e download method, name, etc...))
+    NOTE name should either search for Content ID or name depending on if it is composed of only int values or has non int values 
+    (would be easier for example if user can simply input the cID shown on the website URL if the name has smth like chinese characters for example)
+    NOTE i realize that the url will not show album cID but only song cID, unsure what to do. Perhaps add a optional parameter to enable a "download all songs that share the same album cID as the user inputted album cID given the song cID"
+    NOTE ADD OPTIONAL -ignore_instrumental flag, would search through and ignore the songs with (instrumental) in the name
+
+    2 parts:
+    1. search routine where we find applicable songs to download
+    2. download routine, batch download everything
+        2.1 for each file we should stick the metadata in first before moving onto the next file to download
+
+    params:
+    download_method - the type of search and download we are performing
+    name - depending on download method, could simply mean the name of album or name of single song
+    exact - wheather or not should download any song that contains the name as a substring or if song/album name MUST match user defined name (NOTE: this should only apply to songs not albums)
+    format - file format
+    lyrics - if we should also download the .lrc file if there is one 
+    
+    IMPLEMENT LATER
+    downloadPath - if user can specify an
+    useFoldersForAlbum - if files should simply download in the output directory or if they can be downloaded
+    plainLyrics - if the lrc file should be compressed into a plain lyrics paragraph and embedded into the file's metadata (which some formats like ID3 should support)
+    '''
+    songs = [] #songs and all appropriate download links and metadata
+    match download_method:
+        case DownloadMethod.SINGLE:
+            songs_raw = [] # songs only without album cover data
+            for song in data_songs['data']['list']:
+                if (name.isdigit() == True):
+                    '''
+                    if (name == song['cid']): #Will return multiple as we are checking if a substring of this exists
+                        full_data = msr_get_song_single_cid(song['cid'])
+                        songs_raw.append(full_data)
+                        #print(song)
+                    if (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
+                        full_data = msr_get_song_single_cid(song['cid'])
+                        songs_raw.append(full_data)
+                    '''
+                    pass
+                else:
+                    if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
+                        full_data = msr_get_song_single_cid(song['cid'])
+                        songs_raw.append(full_data)
+                        #print(song)
+                    elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
+                        full_data = msr_get_song_single_cid(song['cid'])
+                        songs_raw.append(full_data)
+                    
+            for song in songs_raw: #a pass through to find the appropriate album image artwork and album name
+                for album in data_albums['data']:
+                    if (album['cid'] == song['albumCid']):
+                        songs.append({
+                            "songMetaData": song,
+                            "coverImgUrl": album['coverUrl'],
+                            "albumName": album['name'],
+                            "albumArtists": album["artistes"] #usually just MSR but may be more            
+                        })
+                        break
+            #print(songs) 
+
+        case DownloadMethod.ALBUM:
+            album_cid = "" #intermediate data
+            songs_raw = []
+            for album in data_albums['data']:
+                if (album['name'] == name):
+                    album_cid = album['cid']
+                    break
+            for song in data_songs['data']['list']:
+                if (song['albumCid'] == album_cid):
+                    full_data = msr_get_song_single_cid(song['cid'])
+                    songs_raw.append(full_data)
+
+
+            for song in songs_raw: #THIS IS REPEAT CODE OF ABOVE CASE STATEMENT
+                for album in data_albums['data']:
+                    if (album['cid'] == song['albumCid']):
+                        songs.append({
+                            "songMetaData": song,
+                            "coverImgUrl": album['coverUrl'],
+                            "albumName": album['name'],
+                            "albumArtists": album["artistes"] #usually just MSR but may be more            
+                        })
+                        break
+
+            #print(songs) 
+        case _:
+            print("ERROR: proper download method not specified")
+
+    if (len(songs) == 0):
+        print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
+    else:
+        #show the names of songs to download and allow the user to make a Y/N choice wheather to continue
+        print(console_gui_utils.bcolors.OKGREEN + str(len(songs)) + " songs were found matching search criteria, they are:" + console_gui_utils.bcolors.ENDC)
+        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        for song in songs:
+                print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['songMetaData']['name'] + "| album: " + song['albumName'] + " | has lyrics? " + str((song['songMetaData']['lyricUrl']) != None) + console_gui_utils.bcolors.ENDC)
+        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        user_confirmation = input("do you wish to continue to downloads? Y/N ")
+        if (user_confirmation == "Y"):
+            print(console_gui_utils.bcolors.OKGREEN + str(len(songs)) + " songs were found matching search criteria, will now download at (PATH: " + DATA_DOWNLOAD_FOLDER_PATH + ")" + console_gui_utils.bcolors.ENDC)
+        else:
+            print("Exiting...")
+            return
+
+    console_gui_utils.console_header("Song/Album Download/File Conversion and Metadata Fill")
+    #2 download routine, batch download everything
+    for song in songs:  
+        console_gui_utils.console_sub_header("Current Song: " + song['songMetaData']['name'])
+        file_path = download_file(song["songMetaData"]["sourceUrl"], song["songMetaData"]['name'] + ".wav")
+        file_path = download_file(song["coverImgUrl"], song["songMetaData"]['name'] + ".png")
+        if (lyrics == False or song["songMetaData"]["lyricUrl"] == None):
+            print (console_gui_utils.bcolors.WARNING + "either no lyrics exists for this song or user has disabled lyric download. Skipping lyric download for song" + console_gui_utils.bcolors.ENDC)
+        else:
+            lrc_path = download_file(song["songMetaData"]["lyricUrl"], song["songMetaData"]['name'] + ".lrc")
+        #2.1 for each file we should convert file and add metadata in first before moving onto the next song to download
+        if (file_format == FileFormat.WAV):
+            print (console_gui_utils.bcolors.WARNING + "no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)" + console_gui_utils.bcolors.ENDC)
+        else:
+            print (console_gui_utils.bcolors.OKBLUE + "Now converting .wav to ." + file_format.value + " " + console_gui_utils.bcolors.ENDC)
+            ffmpeg_exec_controls.convert_file(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".wav"), os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value))
+            
+            #2.1 now adding metadata
+            audio_metadata_tagging.add_metadata(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".png"), watermark)
+        print("") #print new line to make it easier to read output
+
+
+
+def download_file(url: str, fileName: str):
+    '''
+
+    refs:
+    #https://stackoverflow.com/questions/16694907/download-a-large-file-in-python-with-requests
+    # https://stackoverflow.com/questions/62508831/how-can-i-get-size-of-file-while-downloading-it-in-python 
+    '''
+    true_file_path = os.path.join(DATA_DOWNLOAD_FOLDER_PATH, fileName)
+
+    if (os.path.isfile(true_file_path) == True):
+        print(console_gui_utils.bcolors.WARNING + "WARNING: There is a file with the same exact file name (" + fileName + ") already in the download destination, skipping download" + console_gui_utils.bcolors.ENDC)
+        return true_file_path
+
+    with requests.get(url, headers=GLOBAL_REQUESTS_HEADER, stream=True) as r:
+        print("(REMOVE ON BUILD) request was made")
+        #gui stuff
+        r.raise_for_status()
+        downloaded_size = 0
+
+        #print(int(r.headers.get('Content-Length', 0)))
+        #print(console_gui_utils.bcolors.OKGREEN + "Downloading " + console_gui_utils.bcolors.ENDC)
+        total_size = int(r.headers.get('Content-Length', 0))
+        with open(true_file_path, 'wb') as f, tqdm(unit='B', total=total_size, desc=fileName, unit_scale=True, unit_divisor=1024) as bar:
+            for chunk in r.iter_content(chunk_size=1024*1024):
+                size = f.write(chunk)
+                bar.update(size)
+                downloaded_size += size
+            """ without gui stuff
+            for chunk in r.iter_content(chunk_size=8192): 
+                # If you have chunk encoded response uncomment if
+                # and set chunk_size parameter to None.
+                #if chunk: 
+                f.write(chunk)
+            """
+            
+            pass
+    #print(fileName + " downloaded")
+    return true_file_path 
+
+# manual testing method
+def test():
+    #write_to_file("test", CID_CACHE_FILE_PATH)
+    #data_songs, data_albums = msr_get_all_cid()
+
+    #some examples just to check if format of the json is as expected (as well as possible input parsing options we can try out from the user)
+    '''
+    #example of retrieving from the fifth song stored in the overall cache (but not necessarilly the song with cid = 5)
+    print (data_songs['data']['list'][5]) #{'cid': '779450', 'name': '夏日远去之后', 'albumCid': '5198', 'artists': ['塞壬唱片-MSR']}
+    '''
+
+    '''
+    #example of retrieving a song based on name
+    song_name = "Battleplan Obliteration" #user input
+    for song in data_songs['data']['list']:
+        if (song_name in song['name']): #Will return multiple as we are checking if a substring of this exists
+            print(song) #{'cid': '697687', 'name': 'Battleplan Obliteration', 'albumCid': '1015', 'artists': ['塞壬唱片-MSR']} {'cid': '697687', 'name': 'Battleplan Obliteration', 'albumCid': '1015', 'artists': ['塞壬唱片-MSR']}
+        if (song['name'] == song_name): #Will return only one as we are now checking for exact match
+            print(song) #{'cid': '697687', 'name': 'Battleplan Obliteration', 'albumCid': '1015', 'artists': ['塞壬唱片-MSR']}
+    '''
+    
+    #example of retrieving all songs of a given album given the name
+    """
+    album_name = "Innocence" #user input
+    album_cid = "" #intermediate data
+    songs = []#user output
+    for album in data_albums['data']:Y
+        if (album['name'] == album_name):
+            album_cid = album['cid']
+            break
+    for song in data_songs['data']['list']:
+        if (song['albumCid'] == album_cid):
+            songs.append(song)
+    print (album_cid)   #7762
+    print (songs) #[{'cid': '953947', 'name': 'Innocence (Instrumental)', 'albumCid': '7762', 'artists': ['塞壬唱片-MSR']}, {'cid': '232224', 'name': 'Innocence', 'albumCid': '7762', 'artists': ['塞壬唱片-MSR']}]
+    """
+
+    #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan Obliteration", exact=True, file_format=FileFormat.FLAC, lyrics=True)
+    #user_download(download_method=DownloadMethod.SINGLE, name="Heavenly Me", exact=True, file_format=FileFormat.FLAC, lyrics=True) #song has multiple song artists
+    #user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
+
+    #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show nothing
+    user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
+
+if __name__ == "__main__":
+    #initialization
+    console_gui_utils.console_header("Program Initialization")
+    create_folders()
+
+    #main 
+    if getattr(sys, "frozen", True):
+        test() #test method
+    else:
+        pass #actual method to be run in the CLI
+
+    pass

@@ -1,0 +1,6 @@
+#for actually requesting data from Hypergryphs song API
+requests
+#for basic console output graphics
+tqdm
+#for audio file metadata tagging
+mutagen
