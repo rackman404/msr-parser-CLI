@@ -1,6 +1,7 @@
 from enum import Enum
 import sys
 import time
+import argparse
 
 import requests
 import json
@@ -31,6 +32,9 @@ CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(_
 GLOBAL_REQUESTS_HEADER = {'user-agent': 'MSR-Python-CLI-Downloader/V0.1 (email:jacky.zhang404@gmail.com gitrepo:)'}
 GLOBAL_TIMEOUT = 5
 GLOBAL_RECONNECT_TIMER = 2.5
+
+def check_deps():
+    pass
 
 def create_folders():
     '''
@@ -75,7 +79,7 @@ def save_json_msr(data_type: str, file_output_path: str):
         file_output_path -- where data file should be stored
     '''
 
-    print("(REMOVE ON BUILD) request was made")
+    #print("(REMOVE ON BUILD) request was made")
     print(console_gui_utils.bcolors.WARNING + "Waiting one second before making API call" + console_gui_utils.bcolors.ENDC)
     time.sleep(1)
     try:
@@ -105,9 +109,9 @@ def msr_get_all_cid(get_from_api: bool = False):
     get_from_api: bool - force retrieve from public api even if a local cache of data exists
     '''
 
-    console_gui_utils.console_sub_header("Album and Song CID retrieval")
+    console_gui_utils.console_sub_header("1.1. Song and Album Master List JSON Retrieval")
     if (os.path.isfile(CID_SONG_CACHE_FILE_PATH) == False or (get_from_api == True)):
-        console_gui_utils.console_header("Song contentID and master list Download")
+        #console_gui_utils.console_header("Song contentID and master list Download")
         if (get_from_api == True):
             print ("force retrieving songs cache from MSR api:")
         else:
@@ -115,7 +119,7 @@ def msr_get_all_cid(get_from_api: bool = False):
         save_json_msr(MSR_ALL_SONGS_PATH, CID_SONG_CACHE_FILE_PATH)
         print ("success \n ------------------------------------")
     if (os.path.isfile(CID_ALBUM_CACHE_FILE_PATH) == False or (get_from_api == True)):
-        console_gui_utils.console_header("Album contentID and master list Download")
+        #console_gui_utils.console_header("Album contentID and master list Download")
         if (get_from_api == True):
             print ("force retrieving songs cache from MSR api:")
         else:
@@ -123,7 +127,7 @@ def msr_get_all_cid(get_from_api: bool = False):
         save_json_msr(MSR_ALL_ALBUMS_PATH, CID_ALBUM_CACHE_FILE_PATH)
         print ("success \n ------------------------------------")
 
-    print (console_gui_utils.bcolors.OKGREEN + "local data exists now, retrieving jsons now" + console_gui_utils.bcolors.ENDC)
+    print (console_gui_utils.bcolors.OKGREEN + "local master JSON lists exists, retrieving jsons now" + console_gui_utils.bcolors.ENDC)
     with open(CID_SONG_CACHE_FILE_PATH, "r") as file:
         data_songs = json.load(file)
         file.close()
@@ -133,17 +137,60 @@ def msr_get_all_cid(get_from_api: bool = False):
     #print (data_songs)
     return data_songs, data_albums
 
+
+def download_file(url: str, fileName: str):
+    '''
+
+    refs:
+    #https://stackoverflow.com/questions/16694907/download-a-large-file-in-python-with-requests
+    # https://stackoverflow.com/questions/62508831/how-can-i-get-size-of-file-while-downloading-it-in-python 
+    '''
+    true_file_path = os.path.join(DATA_DOWNLOAD_FOLDER_PATH, fileName)
+
+    if (os.path.isfile(true_file_path) == True):
+        print(console_gui_utils.bcolors.WARNING + "WARNING: There is a file with the same exact file name (" + fileName + ") already in the download destination, skipping download" + console_gui_utils.bcolors.ENDC)
+        return true_file_path
+
+    print(console_gui_utils.bcolors.WARNING + "Waiting one second before making API call" + console_gui_utils.bcolors.ENDC)
+    time.sleep(1)
+    with requests.get(url, headers=GLOBAL_REQUESTS_HEADER, stream=True) as r:
+        #print("(REMOVE ON BUILD) request was made")
+        #gui stuff
+        r.raise_for_status()
+        downloaded_size = 0
+
+        #print(int(r.headers.get('Content-Length', 0)))
+        #print(console_gui_utils.bcolors.OKGREEN + "Downloading " + console_gui_utils.bcolors.ENDC)
+        total_size = int(r.headers.get('Content-Length', 0))
+        with open(true_file_path, 'wb') as f, tqdm(unit='B', total=total_size, desc=fileName, unit_scale=True, unit_divisor=1024) as bar:
+            for chunk in r.iter_content(chunk_size=1024*1024):
+                size = f.write(chunk)
+                bar.update(size)
+                downloaded_size += size
+            """ without gui stuff
+            for chunk in r.iter_content(chunk_size=8192): 
+                # If you have chunk encoded response uncomment if
+                # and set chunk_size parameter to None.
+                #if chunk: 
+                f.write(chunk)
+            """
+            
+            pass
+    #print(fileName + " downloaded")
+    return true_file_path 
+
 def msr_get_song_single_cid(cid: str) -> dict:
     '''
     because the URLs to the lrc and wav files are hidden in the individual song api JSONs and not in the master JSON list, we must request this for each song we find in user downloads
     '''
     data = None
     if (os.path.isfile(os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json")) == False):
-        print ("(NOTE TO SELF, REMOVE THIS DURING PRODUCTION BUILD) downloading individual song JSON of cId: " + cid)
+        print ("downloading individual song JSON of cId: " + cid)
         save_json_msr(MSR_SONG_PATH + cid, os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json"))
         #print (json.loads(r.text))
     else:
-        print("(NOTE TO SELF, REMOVE THIS DURING PRODUCTION BUILD) local cache of song JSON exists of cId: " + cid)
+        print("local cache of song JSON exists of cId: " + cid)
+        pass
     with open(os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json"), "r") as file:
         json_raw = json.load(file)
         #print (data['data'])
@@ -151,7 +198,7 @@ def msr_get_song_single_cid(cid: str) -> dict:
         file.close()
 
     return data #ignore the code and msg that the api prints out
-    
+
 class DownloadMethod(Enum):
     SINGLE = "single"
     ALBUM = "album"
@@ -163,8 +210,6 @@ class FileFormat(Enum):
     WAV = "wav"
 
 def user_download(download_method: DownloadMethod, name: str, exact: bool, file_format: FileFormat, lyrics: bool, watermark: bool = True):
-    console_gui_utils.console_header("Song/Album Search")
-    data_songs, data_albums = msr_get_all_cid()
     '''
     should be the main part of the program (but after the part where user args are parsed (i.e download method, name, etc...))
     NOTE name should either search for Content ID or name depending on if it is composed of only int values or has non int values 
@@ -172,10 +217,11 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
     NOTE i realize that the url will not show album cID but only song cID, unsure what to do. Perhaps add a optional parameter to enable a "download all songs that share the same album cID as the user inputted album cID given the song cID"
     NOTE ADD OPTIONAL -ignore_instrumental flag, would search through and ignore the songs with (instrumental) in the name
 
+    NOTE deal with cID as a input option later, fully implement search by name first
+
     2 parts:
     1. search routine where we find applicable songs to download
-    2. download routine, batch download everything
-        2.1 for each file we should stick the metadata in first before moving onto the next file to download
+    2. download routine, batch download everything then post process them
 
     params:
     download_method - the type of search and download we are performing
@@ -190,6 +236,9 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
     plainLyrics - if the lrc file should be compressed into a plain lyrics paragraph and embedded into the file's metadata (which some formats like ID3 should support)
     '''
     
+    console_gui_utils.console_header("1. Song/Album Search")
+    data_songs, data_albums = msr_get_all_cid()
+
     ''' this older algorithm downloaded all required individual song cache files BEFORE presenting the user with the available songs to download, potentially a bad idea to do it like this 
     songs = [] #songs and all appropriate download links and metadata
     match download_method:
@@ -260,15 +309,17 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
             return
     '''
     
-    songs_found = []
+    songs_found = [] #should be formatted as {"partial_song_data": data from master list of songs, "album name": name of album (not including in the master list of songs)}
+    #TODO Reinclude the album name (by referencing album master list) in the songs_found list so that it can be printed out for display to user
     match download_method:
         case DownloadMethod.SINGLE:
             for song in data_songs['data']['list']:
+                #raw = {}
                 if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
                     songs_found.append(song)
-                    #print(song)
-                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
-                    songs_found.append(song)            
+                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match   
+                    songs_found.append(song)
+                #songs_found.append(raw)       
 
         case DownloadMethod.ALBUM:
             album_cid = "" #intermediate data
@@ -301,6 +352,8 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
     else:
         print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
 
+
+    console_gui_utils.console_header("2. Full Song Metadata JSON Download and Local Caching")
     #extraction of full metadata details (i.e coverURL, contentURL, etc...) for each song
     songs = [] #songs and all appropriate download links and metadata
     for song in songs_found:
@@ -315,10 +368,14 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
                 })
                 break
 
-    console_gui_utils.console_header("Song/Album Download/File Conversion and Metadata Fill")
+    console_gui_utils.console_header("3. Song/Album File Downloads and Postprocessing(convert/tagging)")
     #2 download routine, batch download everything
     for song in songs:  
+        console_gui_utils.console_sub_header("-")
         console_gui_utils.console_sub_header("Current Song: " + song['songMetaData']['name'])
+        console_gui_utils.console_sub_header("-")
+
+        print(console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Downloading all required Assets (i.e .lrc file (if applicable), .png file, .wav file)" + console_gui_utils.bcolors.ENDC)
         file_path = download_file(song["songMetaData"]["sourceUrl"], song["songMetaData"]['name'] + ".wav")
         file_path = download_file(song["coverImgUrl"], song["songMetaData"]['name'] + ".png")
         if (lyrics == False or song["songMetaData"]["lyricUrl"] == None):
@@ -329,53 +386,29 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
         if (file_format == FileFormat.WAV):
             print (console_gui_utils.bcolors.WARNING + "no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)" + console_gui_utils.bcolors.ENDC)
         else:
-            print (console_gui_utils.bcolors.OKBLUE + "Now converting .wav to ." + file_format.value + " " + console_gui_utils.bcolors.ENDC)
+            print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now converting .wav to ." + file_format.value + " " + console_gui_utils.bcolors.ENDC)
             ffmpeg_exec_controls.convert_file(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".wav"), os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value))
             
             #2.1 now adding metadata
+            print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now Adding Metadata to converted file" + console_gui_utils.bcolors.ENDC)
             audio_metadata_tagging.add_metadata(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".png"), watermark)
         print("") #print new line to make it easier to read output
 
 
 
-def download_file(url: str, fileName: str):
+
+
+def user_input_parsed(input: list[str]):
+    '''
+    Where program Args should be processed, should return a error and failed exit code if formatted incorrectly. Should a list of args selected afterwards before proceeding to main code
     '''
 
-    refs:
-    #https://stackoverflow.com/questions/16694907/download-a-large-file-in-python-with-requests
-    # https://stackoverflow.com/questions/62508831/how-can-i-get-size-of-file-while-downloading-it-in-python 
-    '''
-    true_file_path = os.path.join(DATA_DOWNLOAD_FOLDER_PATH, fileName)
+    print ("user inputted: " + input + " as args.")
 
-    if (os.path.isfile(true_file_path) == True):
-        print(console_gui_utils.bcolors.WARNING + "WARNING: There is a file with the same exact file name (" + fileName + ") already in the download destination, skipping download" + console_gui_utils.bcolors.ENDC)
-        return true_file_path
 
-    with requests.get(url, headers=GLOBAL_REQUESTS_HEADER, stream=True) as r:
-        print("(REMOVE ON BUILD) request was made")
-        #gui stuff
-        r.raise_for_status()
-        downloaded_size = 0
+    #user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
 
-        #print(int(r.headers.get('Content-Length', 0)))
-        #print(console_gui_utils.bcolors.OKGREEN + "Downloading " + console_gui_utils.bcolors.ENDC)
-        total_size = int(r.headers.get('Content-Length', 0))
-        with open(true_file_path, 'wb') as f, tqdm(unit='B', total=total_size, desc=fileName, unit_scale=True, unit_divisor=1024) as bar:
-            for chunk in r.iter_content(chunk_size=1024*1024):
-                size = f.write(chunk)
-                bar.update(size)
-                downloaded_size += size
-            """ without gui stuff
-            for chunk in r.iter_content(chunk_size=8192): 
-                # If you have chunk encoded response uncomment if
-                # and set chunk_size parameter to None.
-                #if chunk: 
-                f.write(chunk)
-            """
-            
-            pass
-    #print(fileName + " downloaded")
-    return true_file_path 
+    pass
 
 # manual testing method
 def test():
@@ -420,16 +453,24 @@ def test():
 
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show nothing
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
+    #user_download(download_method=DownloadMethod.ALBUM, name="人们，我们OST", exact=True, file_format=FileFormat.FLAC, lyrics=True) #NOTE should deal with the fact that there may be non standard characters that hypergryph uses (，)
+    
 
 if __name__ == "__main__":
+
+    console_gui_utils.console_header("Program Start")
+    console_gui_utils.console_start_screen()
+
     #initialization
     console_gui_utils.console_header("Program Initialization")
     create_folders()
+    check_deps()
 
-    #main 
-    if getattr(sys, "frozen", True):
-        test() #test method
-    else:
-        pass #actual method to be run in the CLI
+    #REAL MAIN
+    #args = sys.argv[1:]
+    #parse_user_input(args)
+
+    #fake main for just testing the main part of program
+    test()
 
     pass

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "_Documentation/Software Requirements and Specifications Document.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "Software Requirements and Specifications Document"
             }
           }
         ]
@@ -185,20 +185,26 @@
   },
   "active": "89276190e6fc1c9a",
   "lastOpenFiles": [
-    "cache/songs/048704.json",
-    "cache/songs/125077.json",
-    "cache/songs/048798.json",
-    "cache/songs/880326.json",
-    "cache/songs/232249.json",
-    "cache/songs/125054.json",
-    "output/Battleplan Obliteration (Instrumental).flac",
-    "output/Battleplan Obliteration (Instrumental).png",
-    "output/Swelling Ink.flac",
-    "output/Swelling Ink.png",
-    "_Documentation/Untitled.md",
-    "_Documentation/Images",
     "README.md",
-    "_Documentation",
+    "_Documentation/Software Requirements and Specifications Document.md",
+    "output/奔赴.flac",
+    "output/奔赴.lrc",
+    "output/奔赴.png",
+    "output/奔赴.wav",
+    "output/众怒.flac",
+    "output/众怒.png",
+    "output/众怒.wav",
+    "output/敬畏自由.flac",
+    "output/敬畏自由.png",
+    "output/敬畏自由.wav",
+    "output/还有明天.flac",
+    "output/还有明天.png",
+    "output/还有明天.wav",
+    "output/无缚者之夜.flac",
+    "output/无缚者之夜.png",
+    "output/奔赴 (Instrumental).png",
+    "output/Battleplan Obliteration (Instrumental).png",
+    "output/Swelling Ink.png",
     "Welcome.md"
   ]
 }

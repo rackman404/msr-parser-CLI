@@ -54,7 +54,6 @@ notes:
 
 
 
-
 # Built With
 
 note: tried to use as little external libraries as possible, may use typer or click in the future to make the CLI look better 

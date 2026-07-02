@@ -47,11 +47,11 @@ def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_
         #print (file_format.value == FileFormat.FLAC.value) #NOTE (FIX LATER) I HAVE NO CLUE WHY THE OBJECT ITSELF CANNOT BE COMPARED CORRECTLY IN THIS SEPARATE FILE COMPARED TO MAIN FILE,
         match file_format.value:
             case FileFormat.FLAC.value:
-                print ("now adding metadata (FLAC)")  
+                print ("Adding Vorbis Comments (.FLAC)")  
                 audio = FLAC(file_path)
 
                 audio["title"] = metadata["songMetaData"]["name"]
-                audio["album"] = metadata["albumName"]
+                audio["album"] = metadata["albumName"] #NOTE should also perform an extra check where if OST is not mentioned, it should also write <Album Name> Single at the end
 
                 #HARD CODED METADATA FIELDS (should not change given that every song hosted on their content servers is probably made/commissioned and owned by hypergryph)
                 #NOTE none of these should have their own try except block as it shouldn't be possible for there to be a exception here
@@ -74,20 +74,21 @@ def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_
                 if (watermark == True): #watermark the file if set to true
                     audio["comment"] = u"Audio file extracted from https://monster-siren.hypergryph.com's public API using https://github.com/rackman404/msr-parser-CLI, all rights reserved to Hypergryph itself"
 
-
                 #get the year based on date already embedded in file (some files mmight not have the date, but just in case we shall wrap it in a try except block)
+                '''
                 try:
                     #print(audio["date"])
                     date = audio["date"][0] #based on battle plan obliteration file, date=2026-06-06
                     audio["year"] = date.split("-")[0] #year of release (song files should already have date released pre tagged but not year itself)
                 except Exception as e:
                     console_gui_utils.console_print_err("METADATA ERR: Failed to add date tag (exception msg: " + str(e) + ") - moving on to next metadata tag")
+                '''
     
                 """implement later
                 audio["track"] = 0 #order of this track relative to others
                 audio["totalTracks"] = 0 #total number of tracks in album
                 
-                audio["releaseType"] = "" #if song is album or single/EP
+                audio["releaseType"] = "" #if song is album or single/EP NOTE: check the album name, if it contains EP or no mention of OST, its a Single, ELSE, it is a Album
                 audio["lyricist"] = "" #lyric writer
                 audio["genre"] = ["Soundtrack", ""] #song genre (ex. rock, pop, etc..), first element should be soundtrack (it is a video game after all), next element should be determined through other means
                 audio["language"] = "" #languages used in song
@@ -96,6 +97,9 @@ def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_
 
                 audio["year"] = 0 #year of release (song files should already have date released pre tagged but not year itself)
                 audio["COMMENT"] = ""
+
+                audio["syncedLyrics"] = "" #NOTE: apparently ID3V2 DOES support synced lyrics, would have been nice to know for a separate project lmao 
+                audio["unsyncedLyrics"] ""
                 """
 
 
@@ -158,6 +162,9 @@ def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_
                 audio = ID3(file_path)
     except Exception as e:
         print (console_gui_utils.bcolors.FAIL + "THERE WAS A ERROR CONVERTING METADATA: " + str(e) + console_gui_utils.bcolors.ENDC)
+        return
+    
+    console_gui_utils.console_print_success("Successfully song inputted metadata (title, cover image, etc..) into song file") 
 
     #print (file_path)
 
