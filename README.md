@@ -30,9 +30,11 @@
 
 
 # Overview
-![[preview_v0_1_0.png.png]]
+
+![preview](_Documentation/Images/preview_v0_1_0.png)
 <sub>Preview Pre V1.0 of CLI </sub>
 
+TBD GIF VERSION AS WELL
 
 TBD Screenshot
 <sub>Preview Pre V1.0 of GUI </sub>

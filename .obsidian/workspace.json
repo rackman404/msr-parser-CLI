@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tests/README.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
@@ -185,11 +185,11 @@
   },
   "active": "89276190e6fc1c9a",
   "lastOpenFiles": [
+    "tests/README.md",
     "cache/cid_album_cache.json",
     "cache/cid_song_cache.json",
     "cache",
     "README.md",
-    "tests/README.md",
     "_Documentation/Software Requirements and Specifications Document.md",
     "_Documentation/Raw Requirements (V1.0).md",
     "tests/__pycache__/test_os_checks.cpython-312.pyc",
@@ -199,8 +199,7 @@
     "deps/ffmpeg.exe",
     "__pycache__/utility.cpython-312.pyc",
     "utility.py",
-    "__init__.py",
-    "_Documentation/Images/preview_v0_1_0.png.png",
+    "_Documentation/Images/preview_v0_1_0.png",
     "output/Battleplan Obliteration.png",
     "output/Battleplan Obliteration (Instrumental).png",
     "output/Swelling Ink.png",
