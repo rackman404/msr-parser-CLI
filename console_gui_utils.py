@@ -74,8 +74,11 @@ def console_start_screen():
     console_sub_header("Help") #show which flags and parameters have been set by user input
     print ("Please use the -help flag or visit the repo hosted at https://github.com/rackman404/msr-parser-CLI for more information")
 
-def console_print_err(msg: str):
-    print(bcolors.FAIL + msg + bcolors.ENDC)
+def console_print_err(msg: str, new_line: bool = True):
+    print(bcolors.FAIL + msg + bcolors.ENDC , end= '\n' if new_line == True else "")
 
-def console_print_success(msg: str):
-    print(bcolors.OKGREEN + msg + bcolors.ENDC)
+def console_print_success(msg: str, new_line: bool = True):
+    print(bcolors.OKGREEN + msg + bcolors.ENDC , end= '\n' if new_line == True else "")
+
+def console_print_warn(msg: str, new_line: bool = True):
+    print(bcolors.WARNING + msg + bcolors.ENDC, end= '\n' if new_line == True else "")

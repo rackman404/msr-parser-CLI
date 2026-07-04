@@ -10,6 +10,7 @@ import os
 import ffmpeg_exec_controls
 import audio_metadata_tagging
 import console_gui_utils
+import os_checks
 
 from tqdm import tqdm
 
@@ -22,19 +23,27 @@ MSR_ALL_SONGS_PATH  = r"https://monster-siren.hypergryph.com/api/songs"
 MSR_ALL_ALBUMS_PATH  = r"https://monster-siren.hypergryph.com/api/albums"
 
 #data paths
-CID_SONG_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_song_cache.json"))
-CID_ALBUM_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_album_cache.json"))
+CID_SONG_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_song_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
+CID_ALBUM_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_album_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
 DATA_DOWNLOAD_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./output/"))
 
-CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
-
+CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")) 
 
 GLOBAL_REQUESTS_HEADER = {'user-agent': 'MSR-Python-CLI-Downloader/V0.1 (email:jacky.zhang404@gmail.com gitrepo:)'}
 GLOBAL_TIMEOUT = 5
 GLOBAL_RECONNECT_TIMER = 2.5
 
-def check_deps():
-    pass
+
+
+POSSIBLE_DEPENDENCIES_PATHS = {
+    "FFMPEG": {
+        "relative_path": os.path.abspath(os.path.join(os.path.dirname(__file__), "./deps/ffmpeg.exe")),
+        "env_path": os.environ.get("ffmpeg"),
+    }
+}
+
+#NOTE To be set in os_checks.py during program initialiaztion, ik this is a constant AND that we can just set this with ternarys but fuck it we ball
+WORKING_DEPENDENCIES_PATHS = None
 
 def create_folders():
     '''
@@ -44,7 +53,7 @@ def create_folders():
     -- https://stackoverflow.com/questions/70235696/checking-folder-and-if-it-doesnt-exist-create-it
     -- https://stackoverflow.com/questions/73207617/remove-file-name-and-extension-from-path-and-just-keep-path
     '''
-    console_gui_utils.console_sub_header("Setting up folders (if needed)")
+    console_gui_utils.console_sub_header("Checking Folders")
     
     #kinda stupid to hardcode each folder like this but theres really only 3 folders to do this to so whatever
     if not os.path.exists(os.path.dirname(CID_SONG_CACHE_FILE_PATH)): #recursively create any unknown directories
@@ -235,7 +244,7 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
     useFoldersForAlbum - if files should simply download in the output directory or if they can be downloaded
     plainLyrics - if the lrc file should be compressed into a plain lyrics paragraph and embedded into the file's metadata (which some formats like ID3 should support)
     '''
-    
+
     console_gui_utils.console_header("1. Song/Album Search")
     data_songs, data_albums = msr_get_all_cid()
 
@@ -311,6 +320,7 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
     
     songs_found = [] #should be formatted as {"partial_song_data": data from master list of songs, "album name": name of album (not including in the master list of songs)}
     #TODO Reinclude the album name (by referencing album master list) in the songs_found list so that it can be printed out for display to user
+    #TODO Put this in a separate method
     match download_method:
         case DownloadMethod.SINGLE:
             for song in data_songs['data']['list']:
@@ -387,7 +397,7 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
             print (console_gui_utils.bcolors.WARNING + "no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)" + console_gui_utils.bcolors.ENDC)
         else:
             print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now converting .wav to ." + file_format.value + " " + console_gui_utils.bcolors.ENDC)
-            ffmpeg_exec_controls.convert_file(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".wav"), os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value))
+            ffmpeg_exec_controls.convert_file(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".wav"), os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value), ffmpeg_path=WORKING_DEPENDENCIES_PATHS["FFMPEG"])
             
             #2.1 now adding metadata
             print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now Adding Metadata to converted file" + console_gui_utils.bcolors.ENDC)
@@ -464,7 +474,15 @@ if __name__ == "__main__":
     #initialization
     console_gui_utils.console_header("Program Initialization")
     create_folders()
-    check_deps()
+    temp = os_checks.check_deps() 
+    print (temp)
+    if (os_checks.check_deps() == None):
+      console_gui_utils.console_print_err("DEPENDENCIES (i.e FFmpeg.exe) not detected in ENV or in deps folder, exiting...")
+      sys.exit()  
+    else:
+        WORKING_DEPENDENCIES_PATHS = temp
+    
+    
 
     #REAL MAIN
     #args = sys.argv[1:]

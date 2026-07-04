@@ -5,30 +5,33 @@ import time
 import console_gui_utils
 from tqdm import tqdm
 
-
-
 import random
 
-FFMPEG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./deps/"))
 
 # Function generating random number between 1 and 100
 def generate_random_numbers():
 	while True:
             yield random.randint(1, 100)
              
-def convert_file(file_path_original: str, file_path_new: str):
+def convert_file(file_path_original: str, file_path_new: str, ffmpeg_path: str):
     '''
     we will assume that both file paths have the correct/supported file extensions
+
+    TODO 
+    https://stackoverflow.com/questions/53222231/redirect-stderr-and-stdout-from-ffmpeg-to-a-file-in-python-with-subprocess redirect and show stderr if fails to convert to specified format
+    https://www.reddit.com/r/ffmpeg/comments/rzxxhf/how_to_catch_ffmpeg_read_error_in_python/
 
     refs:
     https://stackoverflow.com/questions/43274476/is-there-a-way-to-check-if-a-subprocess-is-still-running
     https://stackoverflow.com/questions/10251391/suppressing-output-in-python-subprocess-call
     '''
 
+    #print ("FFMPEG PATH: " + ffmpeg_path)
+
     process_string = f'ffmpeg.exe -y  -i ' "\"" + file_path_original + "\"" + " " + "\"" + file_path_new + "\"" 
     #print ("converting file in FFmpeg:" + file_path_original + " " + file_path_new )
     #print(process_string)
-    process = subprocess.Popen(process_string, cwd=FFMPEG_PATH, shell = True, stdout = subprocess.DEVNULL, stderr = subprocess.STDOUT) # shell = true, security issue?
+    process = subprocess.Popen(process_string, cwd=os.path.dirname(ffmpeg_path), shell = True, stdout = subprocess.DEVNULL, stderr = subprocess.STDOUT) # shell = true, security issue?
 
     tot_time = 0 
     custom_format = "{desc} | Time Elapsed: {n_fmt} Seconds" #https://tqdm.github.io/docs/tqdm/ 

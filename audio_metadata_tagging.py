@@ -25,7 +25,7 @@ def music_brainz_(song_name: str, song_artist: list[str]) -> dict:
     '''
     pass
 
-def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_img_path: str, watermark: bool):
+def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_img_path: str, watermark: bool) -> bool:
     '''
     We note that metadata structure either follows guidelines such as https://xiph.org/vorbis/doc/v-comment.html for .FLAC and .ogg or ID3V2 official structure.
     In addition regardless of file type, this method should ensure that metadata should match with each other as much as possible.
