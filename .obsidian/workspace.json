@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Documentation/Software Requirements and Specifications Document.md",
+                "file": "tests/README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Software Requirements and Specifications Document"
+              "title": "README"
             }
           }
         ]
@@ -185,26 +185,31 @@
   },
   "active": "89276190e6fc1c9a",
   "lastOpenFiles": [
+    "cache/cid_album_cache.json",
+    "cache/cid_song_cache.json",
+    "cache",
     "README.md",
+    "tests/README.md",
     "_Documentation/Software Requirements and Specifications Document.md",
-    "output/奔赴.flac",
-    "output/奔赴.lrc",
-    "output/奔赴.png",
-    "output/奔赴.wav",
-    "output/众怒.flac",
-    "output/众怒.png",
-    "output/众怒.wav",
-    "output/敬畏自由.flac",
-    "output/敬畏自由.png",
-    "output/敬畏自由.wav",
-    "output/还有明天.flac",
-    "output/还有明天.png",
-    "output/还有明天.wav",
-    "output/无缚者之夜.flac",
-    "output/无缚者之夜.png",
-    "output/奔赴 (Instrumental).png",
+    "_Documentation/Raw Requirements (V1.0).md",
+    "tests/__pycache__/test_os_checks.cpython-312.pyc",
+    "tests/__pycache__/test_msr_parser_main.cpython-312.pyc",
+    "tests/test_msr_parser_main.py",
+    "tests/test_os_checks.py",
+    "deps/ffmpeg.exe",
+    "__pycache__/utility.cpython-312.pyc",
+    "utility.py",
+    "__init__.py",
+    "_Documentation/Images/preview_v0_1_0.png.png",
+    "output/Battleplan Obliteration.png",
     "output/Battleplan Obliteration (Instrumental).png",
     "output/Swelling Ink.png",
+    "output/奔赴.png",
+    "output/众怒.png",
+    "output/敬畏自由.png",
+    "output/还有明天.png",
+    "output/无缚者之夜.png",
+    "output/奔赴 (Instrumental).png",
     "Welcome.md"
   ]
 }

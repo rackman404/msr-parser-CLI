@@ -9,7 +9,7 @@ from mutagen.flac import Picture, error as FLACError
 
 from enum import Enum
 
-from msr_parser_main import FileFormat 
+from utility import FileFormat 
 import console_gui_utils
 
 
@@ -122,9 +122,9 @@ def add_metadata(file_path: str, file_format: FileFormat, metadata: dict, cover_
                         sArtists +=  "\\" + "\\" + rawSArtists 
                 """
 
-                #i have no clue if hypergryph actually has different fields for both album and song artists but to make sure, we we will do a union operation on both lists.
+                #NOTE i have no clue if hypergryph actually has different fields for both album and song artists but to make sure, we we will do a union operation on both lists.
                 all_artists_union_set =  set(metadata["songMetaData"]['artists']) | set(metadata['albumArtists'])
-                all_artists = list (all_artists_union_set) #idk if the MSR artist is always the very first option if we do this, maybe manually rearrange it to the very first element as required
+                all_artists = list (all_artists_union_set) #idk if the MSR artist (important for consistancy) is always the very first option if we do this, maybe manually rearrange it to the very first element as required
 
                 audio["artist"] = all_artists
                 #audio["artist"] = metadata["songMetaData"]["name"] non union operation

@@ -1,6 +1,8 @@
 import shutil
 
-# Utility Methods and classes
+#NOTE there should not be any unit testing done on these methods, literally no point
+
+# CLI Utility Methods and classes
 class bcolors: #https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -36,7 +38,7 @@ def console_sub_header(header_msg: str):
 
     print((bcolors.OKGREEN + header_msg + bcolors.ENDC).center(int(terminal_width),"-")) # https://stackoverflow.com/questions/44781484/python-string-formatter-align-center
 
-
+#TODO
 def console_help_screen():
     '''
     to be displayed if user inputs -help as a program argument

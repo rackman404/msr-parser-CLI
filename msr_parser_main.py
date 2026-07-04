@@ -14,6 +14,8 @@ import os_checks
 
 from tqdm import tqdm
 
+from utility import FileFormat, DownloadMethod
+
 #type MSR_file_dat = tuple[float, float]
 
 #api paths
@@ -23,36 +25,38 @@ MSR_ALL_SONGS_PATH  = r"https://monster-siren.hypergryph.com/api/songs"
 MSR_ALL_ALBUMS_PATH  = r"https://monster-siren.hypergryph.com/api/albums"
 
 #data paths
+
 CID_SONG_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_song_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
 CID_ALBUM_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_album_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
-DATA_DOWNLOAD_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./output/"))
-
-CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")) 
 
 GLOBAL_REQUESTS_HEADER = {'user-agent': 'MSR-Python-CLI-Downloader/V0.1 (email:jacky.zhang404@gmail.com gitrepo:)'}
 GLOBAL_TIMEOUT = 5
 GLOBAL_RECONNECT_TIMER = 2.5
 
+"""
+DATA_DOWNLOAD_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./output/"))
+CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")) 
+"""
 
+FOLDER_PATHS = {
+    "DATA_DOWNLOAD_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./output/")), #NOTE THIS SHOULD ACTUALLY CHANGE IN WORKING_FOLDER_PATHS IF USER PASSES A CUSTOM ONE IN
+    "CACHE_SONG_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")), 
+    "CACHE_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/")) 
+}
 
 POSSIBLE_DEPENDENCIES_PATHS = {
     "FFMPEG": {
         "relative_path": os.path.abspath(os.path.join(os.path.dirname(__file__), "./deps/ffmpeg.exe")),
-        "env_path": os.environ.get("ffmpeg"),
+        "env_var": "ffmpeg",
     }
 }
 
-#NOTE To be set in os_checks.py during program initialiaztion, ik this is a constant AND that we can just set this with ternarys but fuck it we ball
+#NOTE To be set in os_checks.py during program initialiaztion, ik that these are constants AND that we can just set this with ternarys but fuck it we ball
 WORKING_DEPENDENCIES_PATHS = None
+WORKING_FOLDER_PATHS = None 
 
+''' obsolete
 def create_folders():
-    '''
-    Simply the default folders if they don't exist
-
-    Refs:
-    -- https://stackoverflow.com/questions/70235696/checking-folder-and-if-it-doesnt-exist-create-it
-    -- https://stackoverflow.com/questions/73207617/remove-file-name-and-extension-from-path-and-just-keep-path
-    '''
     console_gui_utils.console_sub_header("Checking Folders")
     
     #kinda stupid to hardcode each folder like this but theres really only 3 folders to do this to so whatever
@@ -71,9 +75,8 @@ def create_folders():
         os.makedirs((CACHE_DOWNLOAD_SONG_FOLDER_PATH))
     else:
         print(console_gui_utils.bcolors.OKGREEN + "specific song JSON cache exists already" + console_gui_utils.bcolors.ENDC)
+'''
 
-#def write_json_to_file(content, path):
-#    pass
 
 # --------------
 
@@ -154,7 +157,7 @@ def download_file(url: str, fileName: str):
     #https://stackoverflow.com/questions/16694907/download-a-large-file-in-python-with-requests
     # https://stackoverflow.com/questions/62508831/how-can-i-get-size-of-file-while-downloading-it-in-python 
     '''
-    true_file_path = os.path.join(DATA_DOWNLOAD_FOLDER_PATH, fileName)
+    true_file_path = os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], fileName)
 
     if (os.path.isfile(true_file_path) == True):
         print(console_gui_utils.bcolors.WARNING + "WARNING: There is a file with the same exact file name (" + fileName + ") already in the download destination, skipping download" + console_gui_utils.bcolors.ENDC)
@@ -193,14 +196,14 @@ def msr_get_song_single_cid(cid: str) -> dict:
     because the URLs to the lrc and wav files are hidden in the individual song api JSONs and not in the master JSON list, we must request this for each song we find in user downloads
     '''
     data = None
-    if (os.path.isfile(os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json")) == False):
+    if (os.path.isfile(os.path.join(WORKING_FOLDER_PATHS["CACHE_DOWNLOAD_SONG_FOLDER_PATH"], cid + ".json")) == False):
         print ("downloading individual song JSON of cId: " + cid)
-        save_json_msr(MSR_SONG_PATH + cid, os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json"))
+        save_json_msr(MSR_SONG_PATH + cid, os.path.join(WORKING_FOLDER_PATHS["CACHE_DOWNLOAD_SONG_FOLDER_PATH"], cid + ".json"))
         #print (json.loads(r.text))
     else:
         print("local cache of song JSON exists of cId: " + cid)
         pass
-    with open(os.path.join(CACHE_DOWNLOAD_SONG_FOLDER_PATH, cid + ".json"), "r") as file:
+    with open(os.path.join(WORKING_FOLDER_PATHS["CACHE_DOWNLOAD_SONG_FOLDER_PATH"], cid + ".json"), "r") as file:
         json_raw = json.load(file)
         #print (data['data'])
         data = json_raw['data']
@@ -208,17 +211,16 @@ def msr_get_song_single_cid(cid: str) -> dict:
 
     return data #ignore the code and msg that the api prints out
 
-class DownloadMethod(Enum):
-    SINGLE = "single"
-    ALBUM = "album"
-    METADATA_ONLY_SINGLE = "metadata_only_single" #option to simply download the song's cover image as a image file as well as a text file containing relevant metadata 
 
-class FileFormat(Enum):
-    FLAC = "flac"
-    MP3 = "mp3"
-    WAV = "wav"
 
-def user_download(download_method: DownloadMethod, name: str, exact: bool, file_format: FileFormat, lyrics: bool, watermark: bool = True):
+def user_download(
+        download_method: DownloadMethod, 
+        name: str, 
+        exact: bool, 
+        file_format: FileFormat, 
+        lyrics: bool, 
+        watermark: bool = True
+    ):
     '''
     should be the main part of the program (but after the part where user args are parsed (i.e download method, name, etc...))
     NOTE name should either search for Content ID or name depending on if it is composed of only int values or has non int values 
@@ -247,76 +249,6 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
 
     console_gui_utils.console_header("1. Song/Album Search")
     data_songs, data_albums = msr_get_all_cid()
-
-    ''' this older algorithm downloaded all required individual song cache files BEFORE presenting the user with the available songs to download, potentially a bad idea to do it like this 
-    songs = [] #songs and all appropriate download links and metadata
-    match download_method:
-        case DownloadMethod.SINGLE:
-            songs_raw = [] # songs only without album cover data
-            for song in data_songs['data']['list']:
-                if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
-                    full_data = msr_get_song_single_cid(song['cid'])
-                    songs_raw.append(full_data)
-                    #print(song)
-                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match
-                    full_data = msr_get_song_single_cid(song['cid'])
-                    songs_raw.append(full_data)            
-            for song in songs_raw: #a pass through to find the appropriate album image artwork and album name
-                for album in data_albums['data']:
-                    if (album['cid'] == song['albumCid']):
-                        songs.append({
-                            "songMetaData": song,
-                            "coverImgUrl": album['coverUrl'],
-                            "albumName": album['name'],
-                            "albumArtists": album["artistes"] #usually just MSR but may be more            
-                        })
-                        break
-            #print(songs) 
-
-        case DownloadMethod.ALBUM:
-            album_cid = "" #intermediate data
-            songs_raw = []
-            for album in data_albums['data']:
-                if (album['name'] == name):
-                    album_cid = album['cid']
-                    break
-            for song in data_songs['data']['list']:
-                if (song['albumCid'] == album_cid):
-                    full_data = msr_get_song_single_cid(song['cid'])
-                    songs_raw.append(full_data)
-
-
-            for song in songs_raw: #THIS IS REPEAT CODE OF ABOVE CASE STATEMENT
-                for album in data_albums['data']:
-                    if (album['cid'] == song['albumCid']):
-                        songs.append({
-                            "songMetaData": song,
-                            "coverImgUrl": album['coverUrl'],
-                            "albumName": album['name'],
-                            "albumArtists": album["artistes"] #usually just MSR but may be more            
-                        })
-                        break
-
-            #print(songs) 
-        case _:
-            print("ERROR: proper download method not specified")
-
-    if (len(songs) == 0):
-        print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
-    else:
-        #show the names of songs to download and allow the user to make a Y/N choice wheather to continue
-        print(console_gui_utils.bcolors.OKGREEN + str(len(songs)) + " songs were found matching search criteria, they are:" + console_gui_utils.bcolors.ENDC)
-        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
-        for song in songs:
-                print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['songMetaData']['name'] + "| album: " + song['albumName'] + " | has lyrics? " + str((song['songMetaData']['lyricUrl']) != None) + console_gui_utils.bcolors.ENDC)
-        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
-        user_confirmation = input("do you wish to continue to downloads? Y/N ")
-        if (user_confirmation == "Y"):
-            print(console_gui_utils.bcolors.OKGREEN + str(len(songs)) + " songs were found matching search criteria, will now download at (PATH: " + DATA_DOWNLOAD_FOLDER_PATH + ")" + console_gui_utils.bcolors.ENDC)
-        else:
-            print("Exiting...")
-            return
-    '''
     
     songs_found = [] #should be formatted as {"partial_song_data": data from master list of songs, "album name": name of album (not including in the master list of songs)}
     #TODO Reinclude the album name (by referencing album master list) in the songs_found list so that it can be printed out for display to user
@@ -355,7 +287,7 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
         print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
         user_confirmation = input("do you wish to continue to downloads? Y/N ")
         if (user_confirmation == "Y"):
-            print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + DATA_DOWNLOAD_FOLDER_PATH + ")" + console_gui_utils.bcolors.ENDC)
+            print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")" + console_gui_utils.bcolors.ENDC)
         else:
             print("Exiting...")
             return       
@@ -397,11 +329,11 @@ def user_download(download_method: DownloadMethod, name: str, exact: bool, file_
             print (console_gui_utils.bcolors.WARNING + "no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)" + console_gui_utils.bcolors.ENDC)
         else:
             print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now converting .wav to ." + file_format.value + " " + console_gui_utils.bcolors.ENDC)
-            ffmpeg_exec_controls.convert_file(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".wav"), os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value), ffmpeg_path=WORKING_DEPENDENCIES_PATHS["FFMPEG"])
+            ffmpeg_exec_controls.convert_file(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".wav"), os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), ffmpeg_path=WORKING_DEPENDENCIES_PATHS["FFMPEG"])
             
             #2.1 now adding metadata
             print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now Adding Metadata to converted file" + console_gui_utils.bcolors.ENDC)
-            audio_metadata_tagging.add_metadata(os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(DATA_DOWNLOAD_FOLDER_PATH, song["songMetaData"]['name'] + ".png"), watermark)
+            audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), watermark)
         print("") #print new line to make it easier to read output
 
 
@@ -468,26 +400,32 @@ def test():
 
 if __name__ == "__main__":
 
+    #premain
+    #args = sys.argv[1:]
+    #parse_user_input(args)
+    #parsed_args = user_input_parsed()
+
     console_gui_utils.console_header("Program Start")
     console_gui_utils.console_start_screen()
 
     #initialization
     console_gui_utils.console_header("Program Initialization")
-    create_folders()
-    temp = os_checks.check_deps() 
-    print (temp)
-    if (os_checks.check_deps() == None):
+    #create_folders() #TODO delete when method below is done
+    WORKING_FOLDER_PATHS = os_checks.create_folders(hard_coded_paths=FOLDER_PATHS, user_data_output_folder=None)
+    if (WORKING_FOLDER_PATHS == None):
+        console_gui_utils.console_print_err("Somehow an error occurred creating folders, exiting...")
+        sys.exit()  
+
+    #print (deps_path)
+    deps_path = os_checks.check_deps(POSSIBLE_DEPENDENCIES_PATHS) 
+    if (deps_path == None):
       console_gui_utils.console_print_err("DEPENDENCIES (i.e FFmpeg.exe) not detected in ENV or in deps folder, exiting...")
       sys.exit()  
     else:
-        WORKING_DEPENDENCIES_PATHS = temp
-    
-    
+        WORKING_DEPENDENCIES_PATHS = deps_path
 
     #REAL MAIN
-    #args = sys.argv[1:]
-    #parse_user_input(args)
-
+    #user_download() #passed in arg from parsed_args (assuming they are valid)
     #fake main for just testing the main part of program
     test()
 
