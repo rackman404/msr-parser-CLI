@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "_Documentation/Raw Requirements (V1.0).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "Raw Requirements (V1.0)"
             }
           }
         ]
@@ -185,21 +185,22 @@
   },
   "active": "89276190e6fc1c9a",
   "lastOpenFiles": [
-    "tests/README.md",
+    "cache/953948.json",
+    "cache/514506.json",
+    "cache/461113.json",
+    "cache/514505.json",
+    "cache/125031.json",
+    "cache/779452.json",
+    "_Documentation/Images/preview_v0_1_0.png",
+    "_Documentation/Software Requirements and Specifications Document.md",
+    "README.md",
     "cache/cid_album_cache.json",
     "cache/cid_song_cache.json",
+    "cache/songs",
     "cache",
-    "README.md",
-    "_Documentation/Software Requirements and Specifications Document.md",
     "_Documentation/Raw Requirements (V1.0).md",
+    "tests/README.md",
     "tests/__pycache__/test_os_checks.cpython-312.pyc",
-    "tests/__pycache__/test_msr_parser_main.cpython-312.pyc",
-    "tests/test_msr_parser_main.py",
-    "tests/test_os_checks.py",
-    "deps/ffmpeg.exe",
-    "__pycache__/utility.cpython-312.pyc",
-    "utility.py",
-    "_Documentation/Images/preview_v0_1_0.png",
     "output/Battleplan Obliteration.png",
     "output/Battleplan Obliteration (Instrumental).png",
     "output/Swelling Ink.png",

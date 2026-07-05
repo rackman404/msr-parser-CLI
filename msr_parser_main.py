@@ -14,7 +14,8 @@ import os_checks
 
 from tqdm import tqdm
 
-from utility import FileFormat, DownloadMethod
+from utility import FileFormat, DownloadMethod, SongSearchMetadata, MSRSongDataAPIFull, MSRSongDataAPIPartial, MSRAlbumDataAPIFull, MSRMasterListAlbums, MSRMasterListSongs
+
 
 #type MSR_file_dat = tuple[float, float]
 
@@ -39,9 +40,10 @@ CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(_
 """
 
 FOLDER_PATHS = {
-    "DATA_DOWNLOAD_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./output/")), #NOTE THIS SHOULD ACTUALLY CHANGE IN WORKING_FOLDER_PATHS IF USER PASSES A CUSTOM ONE IN
-    "CACHE_SONG_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs")), 
-    "CACHE_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/")) 
+    "DATA_DOWNLOAD_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./output//")), #NOTE THIS SHOULD ACTUALLY CHANGE IN WORKING_FOLDER_PATHS IF USER PASSES A CUSTOM ONE IN
+    "CACHE_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache//")),
+    "CACHE_SONG_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs//")),
+     
 }
 
 POSSIBLE_DEPENDENCIES_PATHS = {
@@ -114,7 +116,7 @@ def save_json_msr(data_type: str, file_output_path: str):
     with open(file_output_path, "w+") as file: #w+ in case file doesn't exist
         json.dump(data, file, indent=2)
 
-def msr_get_all_cid(get_from_api: bool = False):
+def msr_get_all_cid(get_from_api: bool = False) -> tuple[MSRMasterListSongs, MSRMasterListAlbums]:
     '''
     Retrieves a list of all content ids (and associated info) of both songs and albums then stores them locally (to avoid having to constantly ping their servers for stuff)
     params:
@@ -191,7 +193,7 @@ def download_file(url: str, fileName: str):
     #print(fileName + " downloaded")
     return true_file_path 
 
-def msr_get_song_single_cid(cid: str) -> dict:
+def msr_get_song_single_cid(cid: str) -> MSRSongDataAPIFull:
     '''
     because the URLs to the lrc and wav files are hidden in the individual song api JSONs and not in the master JSON list, we must request this for each song we find in user downloads
     '''
@@ -210,8 +212,6 @@ def msr_get_song_single_cid(cid: str) -> dict:
         file.close()
 
     return data #ignore the code and msg that the api prints out
-
-
 
 def user_download(
         download_method: DownloadMethod, 
@@ -248,34 +248,7 @@ def user_download(
     '''
 
     console_gui_utils.console_header("1. Song/Album Search")
-    data_songs, data_albums = msr_get_all_cid()
-    
-    songs_found = [] #should be formatted as {"partial_song_data": data from master list of songs, "album name": name of album (not including in the master list of songs)}
-    #TODO Reinclude the album name (by referencing album master list) in the songs_found list so that it can be printed out for display to user
-    #TODO Put this in a separate method
-    match download_method:
-        case DownloadMethod.SINGLE:
-            for song in data_songs['data']['list']:
-                #raw = {}
-                if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
-                    songs_found.append(song)
-                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match   
-                    songs_found.append(song)
-                #songs_found.append(raw)       
-
-        case DownloadMethod.ALBUM:
-            album_cid = "" #intermediate data
-            for album in data_albums['data']:
-                if (album['name'] == name):
-                    album_cid = album['cid']
-                    break
-            for song in data_songs['data']['list']:
-                if (song['albumCid'] == album_cid):
-                    songs_found.append(song)
-            #print(songs) 
-        case _:
-            print("ERROR: proper download method not specified")
-
+    songs_found = search_songs(search_method=download_method, exact=exact, name=name)
     
     #present user with download options and ask them if they wish to proceed (if there were any songs found at all)
     if (len(songs_found) != 0):
@@ -283,7 +256,7 @@ def user_download(
         print(console_gui_utils.bcolors.OKGREEN + str(len(songs_found)) + " songs were found matching search criteria, they are:" + console_gui_utils.bcolors.ENDC)
         print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
         for song in songs_found:
-                print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['name'] + console_gui_utils.bcolors.ENDC)
+                print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['song_data']['name'] + " | album name: " + song['albumName'] + console_gui_utils.bcolors.ENDC)
         print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
         user_confirmation = input("do you wish to continue to downloads? Y/N ")
         if (user_confirmation == "Y"):
@@ -297,22 +270,14 @@ def user_download(
 
     console_gui_utils.console_header("2. Full Song Metadata JSON Download and Local Caching")
     #extraction of full metadata details (i.e coverURL, contentURL, etc...) for each song
-    songs = [] #songs and all appropriate download links and metadata
+    #songs = [] #songs and all appropriate download links and metadata
     for song in songs_found:
-        full_song_data = msr_get_song_single_cid(song['cid']) #make a request to their API
-        for album in data_albums['data']:
-            if (album['cid'] == song['albumCid']):
-                songs.append({
-                    "songMetaData": full_song_data,
-                    "coverImgUrl": album['coverUrl'],
-                    "albumName": album['name'],
-                    "albumArtists": album["artistes"] #usually just MSR but may be more            
-                })
-                break
+        song['songMetaData'] = msr_get_song_single_cid(song['song_data']['cid']) #make a request to their API
+        
 
     console_gui_utils.console_header("3. Song/Album File Downloads and Postprocessing(convert/tagging)")
     #2 download routine, batch download everything
-    for song in songs:  
+    for song in songs_found:  
         console_gui_utils.console_sub_header("-")
         console_gui_utils.console_sub_header("Current Song: " + song['songMetaData']['name'])
         console_gui_utils.console_sub_header("-")
@@ -336,21 +301,74 @@ def user_download(
             audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), watermark)
         print("") #print new line to make it easier to read output
 
+def search_songs(search_method: DownloadMethod, exact: bool, name: str) -> list[SongSearchMetadata]:
+    data_songs, data_albums = msr_get_all_cid()
 
+    songs_found = []
 
+    #TODO Reinclude the album name (by referencing album master list) in the songs_found list so that it can be printed out for display to user
+    #TODO Put this in a separate method
+    match search_method:
+        case DownloadMethod.SINGLE:
+            for song in data_songs['data']['list']:
+                song_dat: SongSearchMetadata = {
+                    "song_data": None, #NOTE incomplete song data from master list HERE
+                    "songMetaData": None, #NOTE To be Added in later step
+                    "albumName": "",
+                    "albumArtists": "",
+                    "coverImgUrl": ""
+                }
+                #raw = {}
+                if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
+                    song_dat["song_data"] = song
+                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match   
+                    song_dat["song_data"] = song
 
+                for album in data_albums['data']:
+                    if (album['cid'] == song['albumCid']):
+                        song_dat["albumName"] = album['name']
+                        song_dat["albumArtists"] = album["artistes"]
+                        song_dat["coverImgUrl"] = album['coverUrl']
+                        break
+                #songs_found.append(raw)  
+                if (song_dat["song_data"] != None):    
+                    songs_found.append(song_dat)
 
-def user_input_parsed(input: list[str]):
-    '''
-    Where program Args should be processed, should return a error and failed exit code if formatted incorrectly. Should a list of args selected afterwards before proceeding to main code
-    '''
+        case DownloadMethod.ALBUM:
+            album_cid = "" #intermediate data
 
-    print ("user inputted: " + input + " as args.")
+            temp_alb = ""
+            temp_art = ""
+            temp_cover = ""
 
+            for album in data_albums['data']:
+                if (album['name'] == name):
+                    album_cid = album['cid']
 
-    #user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
+                    temp_alb = album['name']
+                    temp_art = album["artistes"]
+                    temp_cover = album['coverUrl']
+                    break
 
-    pass
+            if (album_cid == ""):
+                return [] #return a empty list since a vaid album was not matched above
+            
+            print ("found matching album cID: " + album_cid)
+            for song in data_songs['data']['list']:
+                song_dat = {
+                    "song_data": None, #NOTE incomplete song data from master list HERE
+                    "albumName": temp_alb,
+                    "albumArtists": temp_art,
+                    "coverImgUrl": temp_cover
+                }
+                if (song['albumCid'] == album_cid):
+                    song_dat["song_data"] = song
+                    songs_found.append(song_dat)
+        case _:
+            print("ERROR: proper download method not specified")
+    
+    return songs_found
+
 
 # manual testing method
 def test():
@@ -391,23 +409,29 @@ def test():
 
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan Obliteration", exact=True, file_format=FileFormat.FLAC, lyrics=True)
     #user_download(download_method=DownloadMethod.SINGLE, name="Heavenly Me", exact=True, file_format=FileFormat.FLAC, lyrics=True) #song has multiple song artists
-    user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
+    #user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
 
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show nothing
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
-    #user_download(download_method=DownloadMethod.ALBUM, name="人们，我们OST", exact=True, file_format=FileFormat.FLAC, lyrics=True) #NOTE should deal with the fact that there may be non standard characters that hypergryph uses (，)
-    
+    user_download(download_method=DownloadMethod.ALBUM, name="人们，我们OST", exact=True, file_format=FileFormat.FLAC, lyrics=True) #NOTE should deal with the fact that there may be non standard characters that hypergryph uses (，)
+
+TEST = True
+TEST_ARGS = False
+TEST_ARGS_PARAMS = [""]
+
+def user_input_parsed(input: list[str]):
+    '''
+    Where program Args should be processed, should return a error and failed exit code if formatted incorrectly. Should a list of args selected afterwards before proceeding to main code
+    '''
+
+    print ("user inputted: " + str(input) + " as args.")
+
+    for params in input:
+        if (params.startswith("-") in params): #is a flag
+            pass
+        
 
 if __name__ == "__main__":
-
-    #premain
-    #args = sys.argv[1:]
-    #parse_user_input(args)
-    #parsed_args = user_input_parsed()
-
-    console_gui_utils.console_header("Program Start")
-    console_gui_utils.console_start_screen()
-
     #initialization
     console_gui_utils.console_header("Program Initialization")
     #create_folders() #TODO delete when method below is done
@@ -424,9 +448,23 @@ if __name__ == "__main__":
     else:
         WORKING_DEPENDENCIES_PATHS = deps_path
 
-    #REAL MAIN
-    #user_download() #passed in arg from parsed_args (assuming they are valid)
-    #fake main for just testing the main part of program
-    test()
+
+    #premain
+
+    if (TEST == False):
+        if (TEST_ARGS == True):
+            parsed_args = user_input_parsed(TEST_ARGS_PARAMS)
+        else:
+            args = sys.argv[1:]
+            parsed_args = user_input_parsed(args)
+
+        console_gui_utils.console_header("Program Start") 
+        console_gui_utils.console_start_screen() #TODO, pass the parsed args in here to show to console 
+
+        #user_download() #TODO, pass the args and flags into here
+    else:
+        #REAL MAIN
+        #fake main for just testing the main part of program
+        test()
 
     pass

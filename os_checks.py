@@ -61,8 +61,10 @@ def create_folders(hard_coded_paths: dict, user_data_output_folder: str = None) 
         for folder_key in hard_coded_paths:
             if not os.path.exists(hard_coded_paths[folder_key]): #create any unk directories
                 print(console_gui_utils.bcolors.OKGREEN + "created " + hard_coded_paths[folder_key] + " folder" + console_gui_utils.bcolors.ENDC)
-                os.makedirs(os.path.dirname(hard_coded_paths[folder_key]))
+                os.makedirs(hard_coded_paths[folder_key])
                 pass
+            else:
+                print(console_gui_utils.bcolors.OKGREEN + "folder exists at: " + hard_coded_paths[folder_key] + " folder" + console_gui_utils.bcolors.ENDC)
         
         if (user_data_output_folder != None):
             console_gui_utils.console_print_warn("detected user provided output directory that doesn't exist, creating now:")
