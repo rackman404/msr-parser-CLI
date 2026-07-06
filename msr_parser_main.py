@@ -255,17 +255,23 @@ def user_download(
         #show the names of songs to download and allow the user to make a Y/N choice wheather to continue
         print(console_gui_utils.bcolors.OKGREEN + str(len(songs_found)) + " songs were found matching search criteria, they are:" + console_gui_utils.bcolors.ENDC)
         print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        print(f"{"Song Name":<100} {"Album Name"}")
         for song in songs_found:
-                print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['song_data']['name'] + " | album name: " + song['albumName'] + console_gui_utils.bcolors.ENDC)
+                #print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['song_data']['name'] + " | album name: " + song['albumName'] + console_gui_utils.bcolors.ENDC)
+                print(f"{song['song_data']['name']:<100} {song['albumName']}")
         print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
         user_confirmation = input("do you wish to continue to downloads? Y/N ")
         if (user_confirmation == "Y"):
             print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")" + console_gui_utils.bcolors.ENDC)
         else:
             print("Exiting...")
+            sys.exit()
             return       
     else:
         print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
+        print("Exiting...")
+        sys.exit()
+        return    
 
 
     console_gui_utils.console_header("2. Full Song Metadata JSON Download and Local Caching")
@@ -301,15 +307,27 @@ def user_download(
             audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), watermark)
         print("") #print new line to make it easier to read output
 
-def search_songs(search_method: DownloadMethod, exact: bool, name: str) -> list[SongSearchMetadata]:
-    data_songs, data_albums = msr_get_all_cid()
+def search_songs(search_method: DownloadMethod, exact: bool, name: str, include_instrumental: bool = True, diff_folder_path: str = None) -> list[SongSearchMetadata]:
 
+
+    data_songs, data_albums = msr_get_all_cid()
     songs_found = []
 
-    #TODO Reinclude the album name (by referencing album master list) in the songs_found list so that it can be printed out for display to user
-    #TODO Put this in a separate method
+    if (name.isdigit() == True):
+        console_gui_utils.console_print_warn("Detected a Content ID: searching by cId")
+    else:
+       console_gui_utils.console_print_warn("Detected a Name: searching by Song/Album Name") 
+
+    #TODO implement All search and Diff search
+    #TODO IMPLEMENT NON EXACT ALBUM SEARCH BY NAME (i.e "miss" returns, dont miss it,  missy, miss you)
     match search_method:
         case DownloadMethod.SINGLE:
+            search_key_word = 'name'
+            
+            if (name.isdigit() == True):
+                skip_name_search = True
+                search_key_word = 'cid'
+
             for song in data_songs['data']['list']:
                 song_dat: SongSearchMetadata = {
                     "song_data": None, #NOTE incomplete song data from master list HERE
@@ -319,9 +337,9 @@ def search_songs(search_method: DownloadMethod, exact: bool, name: str) -> list[
                     "coverImgUrl": ""
                 }
                 #raw = {}
-                if (name in song['name'] and exact == False): #Will return multiple as we are checking if a substring of this exists
+                if (name in song[search_key_word] and exact == False): #Will return multiple as we are checking if a substring of this exists
                     song_dat["song_data"] = song
-                elif (song['name'] == name and exact == True): #Will return only one as we are now checking for exact match   
+                elif (song[search_key_word] == name and exact == True): #Will return only one as we are now checking for exact match   
                     song_dat["song_data"] = song
 
                 for album in data_albums['data']:
@@ -335,20 +353,39 @@ def search_songs(search_method: DownloadMethod, exact: bool, name: str) -> list[
                     songs_found.append(song_dat)
 
         case DownloadMethod.ALBUM:
+
             album_cid = "" #intermediate data
 
             temp_alb = ""
             temp_art = ""
             temp_cover = ""
 
-            for album in data_albums['data']:
-                if (album['name'] == name):
-                    album_cid = album['cid']
+            
+            if (name.isdigit() == True): #NOTE, while it is possible for user to have entered album ID, you can't actually see it in the website, most likely they will pass a song id OF the album
+                console_gui_utils.console_print_warn("NOTE: As Album Search is enabled, program will search by album using provided song cID")
+                for song in data_songs['data']['list']: #get the album id given song id
+                    if (name in song['cid']):
+                        console_gui_utils.console_print_development("found matching cid")
+                        album_cid = song['albumCid']
 
-                    temp_alb = album['name']
-                    temp_art = album["artistes"]
-                    temp_cover = album['coverUrl']
-                    break
+                        for album in data_albums['data']:
+                            if (album['cid'] == album_cid):
+                                temp_alb = album['name']
+                                temp_art = album["artistes"]
+                                temp_cover = album['coverUrl']
+
+                                break #no need to search for more at this point
+                        break #ditto
+
+            else: #search by name for cID
+                for album in data_albums['data']:
+                    if (album['name'] == name):
+                        album_cid = album['cid']
+
+                        temp_alb = album['name']
+                        temp_art = album["artistes"]
+                        temp_cover = album['coverUrl']
+                        break
 
             if (album_cid == ""):
                 return [] #return a empty list since a vaid album was not matched above
@@ -366,8 +403,13 @@ def search_songs(search_method: DownloadMethod, exact: bool, name: str) -> list[
                     songs_found.append(song_dat)
         case _:
             print("ERROR: proper download method not specified")
-    
-    return songs_found
+
+    #TODO Implement include_instrumental (strip all songs with (instrumental) in their songs)
+    sorted_songs_found = songs_found
+    if (len(songs_found) != 0):
+        sorted_songs_found = sorted(songs_found, key=lambda d: d['albumName']) #sort by album name so they (download/get presented by user) by album (idr where i got this code snippet ngl)
+
+    return sorted_songs_found
 
 
 # manual testing method
@@ -413,7 +455,13 @@ def test():
 
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show nothing
     #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
-    user_download(download_method=DownloadMethod.ALBUM, name="人们，我们OST", exact=True, file_format=FileFormat.FLAC, lyrics=True) #NOTE should deal with the fact that there may be non standard characters that hypergryph uses (，)
+    
+    #user_download(download_method=DownloadMethod.ALBUM, name="人们，我们OST", exact=True, file_format=FileFormat.FLAC, lyrics=True) #NOTE should deal with the fact that there may be non standard characters that hypergryph uses (，)
+
+    #user_download(download_method=DownloadMethod.SINGLE, name="697687", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show battleplan obliteration
+    #user_download(download_method=DownloadMethod.ALBUM, name="697687", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
+
+    user_download(download_method=DownloadMethod.ALBUM, name="miss", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
 
 TEST = True
 TEST_ARGS = False

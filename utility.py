@@ -66,7 +66,7 @@ class MSRSongDataAPIPartial(TypedDict):
     '''
         What MSR uses for their partial song data entry JSONs (from within the master list of songs)
     '''
-    data: str
+    cid: str
     name: str
     albumCid: str
     artists: list[str]
@@ -77,7 +77,7 @@ class MSRAlbumDataAPIFull(TypedDict):
     '''
         What MSR uses for their full album data entry JSONs (from within the master list of albums)
     '''
-    data: str
+    cid: str
     name: str
     coverUrl: str
     artistes: list[str]
@@ -88,9 +88,8 @@ class MSRMasterListDataSong(TypedDict):
     list: list[MSRSongDataAPIPartial]
     autoplay: str
 
-class MSRMasterListDataAlbum(TypedDict):
-    list: list[MSRAlbumDataAPIFull]
-    autoplay: str
+#class MSRMasterListDataAlbum(TypedDict):
+#    data: list[MSRAlbumDataAPIFull]
 
 class MSRMasterListSongs(TypedDict):
     code: int
@@ -100,7 +99,7 @@ class MSRMasterListSongs(TypedDict):
 class MSRMasterListAlbums(TypedDict):
     code: int
     msg: str
-    data: MSRMasterListDataAlbum
+    data: list[MSRAlbumDataAPIFull]
 
 ###
 

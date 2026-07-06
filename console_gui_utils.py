@@ -84,3 +84,11 @@ def console_print_success(msg: str, new_line: bool = True):
 
 def console_print_warn(msg: str, new_line: bool = True):
     print(bcolors.WARNING + msg + bcolors.ENDC, end= '\n' if new_line == True else "")
+
+def console_print_development(msg: str, new_line: bool = True):
+    '''
+        Bolded for debugging only
+        NOTE maybe reference the TEST global variable on main file and check if this should even print anything
+        NOTE OR just check if application is a binary built by pyinstaller tbh
+    '''
+    print(bcolors.BOLD + "DEBUG: " + msg + bcolors.ENDC, end= '\n' if new_line == True else "")
