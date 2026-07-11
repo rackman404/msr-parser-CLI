@@ -26,7 +26,6 @@ class SearchArguments:
 class ConversionArguments:
     # ffmpeg/metadata specific
     convert_format: FileFormat = FileFormat.WAV  
-
     add_metadata: bool = True # add metadata data at all
     music_brainz: bool = True # use music brainz api to fill missing metadata fields and add missing artists
     

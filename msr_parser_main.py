@@ -14,7 +14,7 @@ import os_checks
 
 from tqdm import tqdm
 
-from utility import FileFormat, DownloadMethod, SongSearchMetadata, MSRSongDataAPIFull, MSRSongDataAPIPartial, MSRAlbumDataAPIFull, MSRMasterListAlbums, MSRMasterListSongs
+from utility import FileFormat, DownloadMethod, SongSearchMetadata, MSRSongDataAPIFull, MSRSongDataAPIPartial, MSRAlbumDataAPIFull, MSRMasterListAlbums, MSRMasterListSongs, ProgramArguments, ConversionArguments, SearchArguments
 
 
 #type MSR_file_dat = tuple[float, float]
@@ -213,13 +213,16 @@ def msr_get_song_single_cid(cid: str) -> MSRSongDataAPIFull:
 
     return data #ignore the code and msg that the api prints out
 
-def user_download(
+#TODO implement args, do not pass random variables in
+def main(
         download_method: DownloadMethod, 
         name: str, 
         exact: bool, 
         file_format: FileFormat, 
         lyrics: bool, 
-        watermark: bool = True
+        watermark: bool = True,
+        
+        args: ProgramArguments = None
     ):
     '''
     should be the main part of the program (but after the part where user args are parsed (i.e download method, name, etc...))
@@ -230,6 +233,7 @@ def user_download(
 
     NOTE deal with cID as a input option later, fully implement search by name first
 
+    
     2 parts:
     1. search routine where we find applicable songs to download
     2. download routine, batch download everything then post process them
@@ -307,9 +311,8 @@ def user_download(
             audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), watermark)
         print("") #print new line to make it easier to read output
 
+#TODO move all MSR requests methods and this search method into a separate file
 def search_songs(search_method: DownloadMethod, exact: bool, name: str, include_instrumental: bool = True, diff_folder_path: str = None) -> list[SongSearchMetadata]:
-
-
     data_songs, data_albums = msr_get_all_cid()
     songs_found = []
 
@@ -411,61 +414,8 @@ def search_songs(search_method: DownloadMethod, exact: bool, name: str, include_
 
     return sorted_songs_found
 
-
-# manual testing method
-def test():
-    #write_to_file("test", CID_CACHE_FILE_PATH)
-    #data_songs, data_albums = msr_get_all_cid()
-
-    #some examples just to check if format of the json is as expected (as well as possible input parsing options we can try out from the user)
-    '''
-    #example of retrieving from the fifth song stored in the overall cache (but not necessarilly the song with cid = 5)
-    print (data_songs['data']['list'][5]) #{'cid': '779450', 'name': '夏日远去之后', 'albumCid': '5198', 'artists': ['塞壬唱片-MSR']}
-    '''
-
-    '''
-    #example of retrieving a song based on name
-    song_name = "Battleplan Obliteration" #user input
-    for song in data_songs['data']['list']:
-        if (song_name in song['name']): #Will return multiple as we are checking if a substring of this exists
-            print(song) #{'cid': '697687', 'name': 'Battleplan Obliteration', 'albumCid': '1015', 'artists': ['塞壬唱片-MSR']} {'cid': '697687', 'name': 'Battleplan Obliteration', 'albumCid': '1015', 'artists': ['塞壬唱片-MSR']}
-        if (song['name'] == song_name): #Will return only one as we are now checking for exact match
-            print(song) #{'cid': '697687', 'name': 'Battleplan Obliteration', 'albumCid': '1015', 'artists': ['塞壬唱片-MSR']}
-    '''
-    
-    #example of retrieving all songs of a given album given the name
-    """
-    album_name = "Innocence" #user input
-    album_cid = "" #intermediate data
-    songs = []#user output
-    for album in data_albums['data']:Y
-        if (album['name'] == album_name):
-            album_cid = album['cid']
-            break
-    for song in data_songs['data']['list']:
-        if (song['albumCid'] == album_cid):
-            songs.append(song)
-    print (album_cid)   #7762
-    print (songs) #[{'cid': '953947', 'name': 'Innocence (Instrumental)', 'albumCid': '7762', 'artists': ['塞壬唱片-MSR']}, {'cid': '232224', 'name': 'Innocence', 'albumCid': '7762', 'artists': ['塞壬唱片-MSR']}]
-    """
-
-    #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan Obliteration", exact=True, file_format=FileFormat.FLAC, lyrics=True)
-    #user_download(download_method=DownloadMethod.SINGLE, name="Heavenly Me", exact=True, file_format=FileFormat.FLAC, lyrics=True) #song has multiple song artists
-    #user_download(download_method=DownloadMethod.ALBUM, name="涤墨作战OST", exact=False, file_format=FileFormat.FLAC, lyrics=True)
-
-    #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show nothing
-    #user_download(download_method=DownloadMethod.SINGLE, name="Battleplan", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show all battleplan OST songs
-    
-    #user_download(download_method=DownloadMethod.ALBUM, name="人们，我们OST", exact=True, file_format=FileFormat.FLAC, lyrics=True) #NOTE should deal with the fact that there may be non standard characters that hypergryph uses (，)
-
-    #user_download(download_method=DownloadMethod.SINGLE, name="697687", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show battleplan obliteration
-    #user_download(download_method=DownloadMethod.ALBUM, name="697687", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
-
-    user_download(download_method=DownloadMethod.ALBUM, name="miss", exact=False, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
-
-TEST = True
-TEST_ARGS = False
-TEST_ARGS_PARAMS = [""]
+TEST_ARGS = True
+TEST_ARGS_PARAMS = ["missy", "-m", "single"]
 
 def user_input_parsed(input: list[str]):
     '''
@@ -479,40 +429,42 @@ def user_input_parsed(input: list[str]):
             pass
         
 
-if __name__ == "__main__":
+def init():
     #initialization
     console_gui_utils.console_header("Program Initialization")
     #create_folders() #TODO delete when method below is done
-    WORKING_FOLDER_PATHS = os_checks.create_folders(hard_coded_paths=FOLDER_PATHS, user_data_output_folder=None)
-    if (WORKING_FOLDER_PATHS == None):
+    folders = os_checks.create_folders(hard_coded_paths=FOLDER_PATHS, user_data_output_folder=None)
+    if (folders == None):
         console_gui_utils.console_print_err("Somehow an error occurred creating folders, exiting...")
         sys.exit()  
-
     #print (deps_path)
     deps_path = os_checks.check_deps(POSSIBLE_DEPENDENCIES_PATHS) 
     if (deps_path == None):
       console_gui_utils.console_print_err("DEPENDENCIES (i.e FFmpeg.exe) not detected in ENV or in deps folder, exiting...")
       sys.exit()  
     else:
-        WORKING_DEPENDENCIES_PATHS = deps_path
+        return folders, deps_path
 
 
-    #premain
 
-    if (TEST == False):
-        if (TEST_ARGS == True):
-            parsed_args = user_input_parsed(TEST_ARGS_PARAMS)
-        else:
-            args = sys.argv[1:]
-            parsed_args = user_input_parsed(args)
 
-        console_gui_utils.console_header("Program Start") 
-        console_gui_utils.console_start_screen() #TODO, pass the parsed args in here to show to console 
+if __name__ == "__main__":
+    WORKING_FOLDER_PATHS, WORKING_DEPENDENCIES_PATHS = init()
+    #main(download_method=DownloadMethod.SINGLE, name="空王冠", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
 
-        #user_download() #TODO, pass the args and flags into here
+    if (TEST_ARGS == True):
+        parsed_args = user_input_parsed(TEST_ARGS_PARAMS)
     else:
-        #REAL MAIN
-        #fake main for just testing the main part of program
-        test()
+        args = sys.argv[1:]
+        parsed_args = user_input_parsed(args)
+        console_gui_utils.console_print_warn(parsed_args)
+
+    #main(parsed_args)
+
+    console_gui_utils.console_header("Program Start") 
+    console_gui_utils.console_start_screen() #TODO, pass the parsed args in here to show to console 
+
+    #user_download() #TODO, pass the args and flags into here
+
 
     pass
