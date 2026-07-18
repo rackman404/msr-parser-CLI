@@ -1,0 +1,106 @@
+<mxfile host="65bd71144e">
+    <diagram id="jqVl86aBA67ymabjHUhc" name="Page-1">
+        <mxGraphModel dx="2128" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="8" value="./Root/" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="90" y="110" width="510" height="850" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="utility.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="360" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="msr_parser_main.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="60" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="arg_parse.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="130" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="os_checks.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="290" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="ffmpeg_exec_controls.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="520" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="audio_metadata_tagging.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="440" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="console_gui_utils.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="210" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="/tests/" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="290" y="50" width="200" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="11" vertex="1">
+                    <mxGeometry x="90" y="50" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="/deps/" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="370" y="190" width="120" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="18" vertex="1">
+                    <mxGeometry x="45" y="50" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="/cache/" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="370" y="330" width="120" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="19" vertex="1">
+                    <mxGeometry x="45" y="48" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="/output/" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="370" y="470" width="120" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="20" vertex="1">
+                    <mxGeometry x="45" y="45" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="requirements.txt" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="750" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value=".gitignore" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="610" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="test.bat" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="680" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="Entry Point" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-20" y="170" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="Unit Tests Directory" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="180" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="FFmpeg exe and other extern .exe should be here" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="630" y="310" width="100" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="Cached JSON file Directory" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="460" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="Default Download Directory" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="600" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="Helper Functions (printing to console)" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-60" y="320" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="Parse CLI Arguments" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-60" y="240" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="Last Modified: 07-18" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-55" y="110" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="Checks and creates any directories/folders/exes&amp;nbsp;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-60" y="400" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="Dataclass definitions and dict typing and other utils" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-60" y="473" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="Song Conversion/Filters Handler" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-70" y="620" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="Song Metadata Handler" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-70" y="550" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="Misc Files,&lt;br&gt;test.bat: execute to auto run any unit tests&lt;br&gt;.gitignore: mainly for ignoring any cached JSONs or data files in ./output&lt;br&gt;requirements.txt use pip install with it to install any external libraries needed&amp;nbsp;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-160" y="750" width="230" height="120" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

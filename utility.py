@@ -55,7 +55,7 @@ class ProgramArguments:
     metadata_args: MetadataArguments
 
     #common args below
-    
+    user_confirmation: bool = True #true for requires confirmation
     pass
 
 

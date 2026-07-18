@@ -264,13 +264,14 @@ def main(
                 #print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['song_data']['name'] + " | album name: " + song['albumName'] + console_gui_utils.bcolors.ENDC)
                 print(f"{song['song_data']['name']:<100} {song['albumName']}")
         print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
-        user_confirmation = input("do you wish to continue to downloads? Y/N ")
-        if (user_confirmation == "Y"):
-            print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")" + console_gui_utils.bcolors.ENDC)
-        else:
-            print("Exiting...")
-            sys.exit()
-            return       
+        if (args.user_confirmation == True):  
+            user_confirmation = input("do you wish to continue to downloads? Y/N ")
+            if (user_confirmation == "Y"):
+                print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")" + console_gui_utils.bcolors.ENDC)
+            else:
+                print("Exiting...")
+                sys.exit()
+                return       
     else:
         print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
         print("Exiting...")
@@ -440,18 +441,26 @@ def init():
     else:
         return folders, deps_path
 
+#TODO do this bruh
+def parse_params(args: ProgramArguments):
+    '''
+    parse the arguments to show to user
+    '''
+    param_string = ""
+    param_string += "Raw: " + str(args) + "\n"
+    param_string += "Formatted: \n"
 
+    return param_string 
 
 if __name__ == "__main__":
     WORKING_FOLDER_PATHS, WORKING_DEPENDENCIES_PATHS = init()
-    #main(download_method=DownloadMethod.SINGLE, name="空王冠", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
-
     args = sys.argv[1:]
     parsed_args = parse_args(sys.argv[1:])
-    #console_gui_utils.console_print_warn(str(parsed_args))
 
     console_gui_utils.console_header("Program Start") 
-    console_gui_utils.console_start_screen(parsed_args) #TODO, pass the parsed args in here to show to console 
+
+    param_string = parse_params(parsed_args)
+    console_gui_utils.console_start_screen(param_string) #TODO, pass the parsed args in here to show to console 
 
     main(parsed_args)
 

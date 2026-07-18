@@ -46,22 +46,25 @@ def user_input_parsed(input: list[str]):
         action="store_false",
         default=True)
 
-    #TODO IMPLEMENT
-    parser.add_argument("-y", "--skipuser", 
-        help="Will skip user confirmation after presenting found songs to user (and any other user input).",
-        action="store_true",
-        default=False)
-    
     parser.add_argument("-w", "--watermark", 
         help="Will skip downloading any .lrc files if a song has it",
         action="store_true",
         default=False)
+    
+    #COMMON ARGS ---
+    parser.add_argument("-y", "--skipuser", 
+        help="Will skip user confirmation after presenting found songs to user (and any other user input).",
+        action="store_false",
+        default=True)
     
     parser.args = parser.parse_args()
     return parser.args
 
 
 def map_to_arg_class(args):
+    '''
+    Map from the parser namespace to actual explicitly defined data classes 
+    '''
     arg_obj_search = utility.SearchArguments(
         search_term= args.search,
         mode= args.mode,
@@ -83,12 +86,18 @@ def map_to_arg_class(args):
         search_args= arg_obj_search,
         convert_args= arg_obj_convert,
         download_args= arg_obj_download,
-        metadata_args= arg_obj_metadata
+        metadata_args= arg_obj_metadata,
+
+        #common args,
+        user_confirmation=args.skipuser
     )
 
     return arg_obj_common
 
 def parse_args(input: list[str]):
+    '''
+    Main entry point for this file. Will parse CLI arguments, then map said arguments to dataclasses and returns it
+    '''
     raw_args = user_input_parsed(input)
     #print (raw_args)
 

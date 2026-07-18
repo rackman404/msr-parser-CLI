@@ -1,11 +1,10 @@
+NOTE: can't be bothered to constantly update this, if in doubt, refer to to README.md in project root
 
 Detailed here are just the raw functional and non functional requirements consolidated from several random places (i.e notepad, notion) i noted down, see the SRS document for a more official version. 
-
 
 # Generic API 
 - All API calls must follow any rules given by external APIs (i.e max amount of requests/second)
 - All API calls should have a CONTENT HEADER with a appropriate "user-agent" denoting name of application and Github repo URL
-
 
 ### Folder and Executable Dependencies
 - A local "cache" of "metadata" retrieved from MSR should be maintained, with actual song related data files going to a "data" folder. Must also make use of local executables for any subprocesses that the application uses
@@ -56,28 +55,9 @@ Detailed here are just the raw functional and non functional requirements consol
 - Security/Maintainability: 
 	- Should use as little EXTERNAL python libraries and other executables/.dlls as much as possible to limit security vulnerabilities and to make maintaining program easier in the future as possible
 
-
 # Interface Requirements
-raw unstructured
-- msr_parser.exe {name/cID NOTE: only if -all is not used} {-album/-single/-all} (-nomusicbrainz) (-o) (-exact) (-folder) (-output "folder_path") (-fileformat ".mp3"/".flac"/".ogg")
-- Note: (arg) is optional {arg} is mandatory 
-- Note: order of args should not matter (except {name/cID}, which should always be the first arg if provided)
 
-
-- CLI:
-	- We wil define argument types using https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html the following definitions:
-		- Options/Flags: Modification of default values (therefore they are optional since a default would be used anyways)  
-			- where a '-' for options that are single letter (ex. -o for overwrite)
-			- where a '--' for options that are a word (ex. --override)
-		- Option Arguments: Specific argument passed for a option
-			- Example: -output "Folder/To/Somewhere"
-		- Operand: Data objects (ex. strings, file paths) the program will operate on 
-			- For this program, the only operand should be
-	- I note they use utility_name\[-a\]\[-b\]\[-c option_argument\]\[-d|-e\]\[\-f\[option_argument]\]\[operand...\]
-		- However i will place operand at the start (theres only one operand "name/cid" and its mandatory)
-	- Default Behaviour of Program (if passed just a name/cid from user):
-		- Search using name/cid exact
-		- Search using singles (i.e search song names/cId not album name/cId)
-		- download to default download path
-		- only download .wav + .png + .lrc no conversions or metadata additions
+- CLI: CLI declarations args should follow the format specified in ArgParse
+	- Args should have a {--long-name} and a {-single-letter} if possible
+	- Except for search term arg, all other args/flags are to have a default and be optional to use
 	
