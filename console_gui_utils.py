@@ -44,7 +44,7 @@ def console_help_screen():
     to be displayed if user inputs -help as a program argument
     '''
 
-def console_start_screen():
+def console_start_screen(args: any):
     '''
     to be displayed as the algorithm steps the program takes
     '''
@@ -70,6 +70,7 @@ def console_start_screen():
 
     console_sub_header("Program Flags and Parameters Set by User") #show which flags and parameters have been set by user input
     print ("")
+    print (str(args))
     #.....
     print ("")
 

@@ -7,6 +7,7 @@ import requests
 import json
 import os
 
+from arg_parse import parse_args, user_input_parsed
 import ffmpeg_exec_controls
 import audio_metadata_tagging
 import console_gui_utils
@@ -215,14 +216,13 @@ def msr_get_song_single_cid(cid: str) -> MSRSongDataAPIFull:
 
 #TODO implement args, do not pass random variables in
 def main(
-        download_method: DownloadMethod, 
-        name: str, 
-        exact: bool, 
-        file_format: FileFormat, 
-        lyrics: bool, 
-        watermark: bool = True,
-        
-        args: ProgramArguments = None
+        args: ProgramArguments,
+        #download_method: DownloadMethod, 
+        #name: str, 
+        #exact: bool, 
+        #file_format: FileFormat, 
+        #lyrics: bool, 
+        #watermark: bool = True
     ):
     '''
     should be the main part of the program (but after the part where user args are parsed (i.e download method, name, etc...))
@@ -252,7 +252,7 @@ def main(
     '''
 
     console_gui_utils.console_header("1. Song/Album Search")
-    songs_found = search_songs(search_method=download_method, exact=exact, name=name)
+    songs_found = search_songs(search_method=args.search_args.mode, exact=args.search_args.exact, name=args.search_args.search_term)
     
     #present user with download options and ask them if they wish to proceed (if there were any songs found at all)
     if (len(songs_found) != 0):
@@ -295,24 +295,32 @@ def main(
         print(console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Downloading all required Assets (i.e .lrc file (if applicable), .png file, .wav file)" + console_gui_utils.bcolors.ENDC)
         file_path = download_file(song["songMetaData"]["sourceUrl"], song["songMetaData"]['name'] + ".wav")
         file_path = download_file(song["coverImgUrl"], song["songMetaData"]['name'] + ".png")
-        if (lyrics == False or song["songMetaData"]["lyricUrl"] == None):
+        if (args.download_args.lyrics == False or song["songMetaData"]["lyricUrl"] == None):
             print (console_gui_utils.bcolors.WARNING + "either no lyrics exists for this song or user has disabled lyric download. Skipping lyric download for song" + console_gui_utils.bcolors.ENDC)
         else:
             lrc_path = download_file(song["songMetaData"]["lyricUrl"], song["songMetaData"]['name'] + ".lrc")
         #2.1 for each file we should convert file and add metadata in first before moving onto the next song to download
-        if (file_format == FileFormat.WAV):
+        if (args.convert_args.convert_format == FileFormat.WAV):
             print (console_gui_utils.bcolors.WARNING + "no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)" + console_gui_utils.bcolors.ENDC)
         else:
-            print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now converting .wav to ." + file_format.value + " " + console_gui_utils.bcolors.ENDC)
-            ffmpeg_exec_controls.convert_file(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".wav"), os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), ffmpeg_path=WORKING_DEPENDENCIES_PATHS["FFMPEG"])
+            print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now converting .wav to ." + args.convert_args.convert_format.value + " " + console_gui_utils.bcolors.ENDC)
+            ffmpeg_exec_controls.convert_file(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".wav"), os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + args.convert_args.convert_format.value), ffmpeg_path=WORKING_DEPENDENCIES_PATHS["FFMPEG"])
             
             #2.1 now adding metadata
             print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now Adding Metadata to converted file" + console_gui_utils.bcolors.ENDC)
-            audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + file_format.value), file_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), watermark)
+            audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + args.convert_args.convert_format.value), args.convert_args.convert_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), args.metadata_args.watermark)
         print("") #print new line to make it easier to read output
 
 #TODO move all MSR requests methods and this search method into a separate file
-def search_songs(search_method: DownloadMethod, exact: bool, name: str, include_instrumental: bool = True, diff_folder_path: str = None) -> list[SongSearchMetadata]:
+def search_songs(   
+        search_method: DownloadMethod, 
+        exact: bool, 
+        name: str, 
+
+
+        #include_instrumental: bool = True, 
+        #diff_folder_path: str = None
+        ) -> list[SongSearchMetadata]:
     data_songs, data_albums = msr_get_all_cid()
     songs_found = []
 
@@ -414,20 +422,7 @@ def search_songs(search_method: DownloadMethod, exact: bool, name: str, include_
 
     return sorted_songs_found
 
-TEST_ARGS = True
-TEST_ARGS_PARAMS = ["missy", "-m", "single"]
 
-def user_input_parsed(input: list[str]):
-    '''
-    Where program Args should be processed, should return a error and failed exit code if formatted incorrectly. Should a list of args selected afterwards before proceeding to main code
-    '''
-
-    print ("user inputted: " + str(input) + " as args.")
-
-    for params in input:
-        if (params.startswith("-") in params): #is a flag
-            pass
-        
 
 def init():
     #initialization
@@ -447,24 +442,18 @@ def init():
 
 
 
-
 if __name__ == "__main__":
     WORKING_FOLDER_PATHS, WORKING_DEPENDENCIES_PATHS = init()
     #main(download_method=DownloadMethod.SINGLE, name="空王冠", exact=True, file_format=FileFormat.FLAC, lyrics=True) #should show the OST for obliteration
 
-    if (TEST_ARGS == True):
-        parsed_args = user_input_parsed(TEST_ARGS_PARAMS)
-    else:
-        args = sys.argv[1:]
-        parsed_args = user_input_parsed(args)
-        console_gui_utils.console_print_warn(parsed_args)
-
-    #main(parsed_args)
+    args = sys.argv[1:]
+    parsed_args = parse_args(sys.argv[1:])
+    #console_gui_utils.console_print_warn(str(parsed_args))
 
     console_gui_utils.console_header("Program Start") 
-    console_gui_utils.console_start_screen() #TODO, pass the parsed args in here to show to console 
+    console_gui_utils.console_start_screen(parsed_args) #TODO, pass the parsed args in here to show to console 
 
-    #user_download() #TODO, pass the args and flags into here
+    main(parsed_args)
 
 
     pass

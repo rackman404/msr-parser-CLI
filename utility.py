@@ -6,14 +6,19 @@ from dataclasses import dataclass #using this cause i don't wanna create init an
 class DownloadMethod(Enum):
     SINGLE = "single"
     ALBUM = "album"
-    METADATA_ONLY_SINGLE = "metadata_only_single" #option to simply download the song's cover image as a image file as well as a text file containing relevant metadata 
+    ALL = "all"
 
+    def __str__(self):
+        return self.value
+    
 class FileFormat(Enum):
     FLAC = "flac"
     MP3 = "mp3"
     WAV = "wav"
     OGG = "ogg"
 
+    def __str__(self):
+        return self.value
 
 @dataclass
 class SearchArguments:
@@ -21,6 +26,16 @@ class SearchArguments:
     search_term: str
     mode: DownloadMethod = DownloadMethod.SINGLE
     exact: bool = True
+
+@dataclass
+class DownloadArguments:
+    # download specific
+    lyrics: bool = True
+
+@dataclass
+class MetadataArguments:
+    # download specific
+    watermark: bool = False
 
 @dataclass
 class ConversionArguments:
@@ -36,6 +51,8 @@ class ProgramArguments:
     '''
     search_args: SearchArguments
     convert_args: ConversionArguments
+    download_args: DownloadArguments
+    metadata_args: MetadataArguments
 
     #common args below
     

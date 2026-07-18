@@ -18,7 +18,7 @@ Detailed here are just the raw functional and non functional requirements consol
 	- Must use FFmpeg for this
 - Add Metadata to any converted audio files
 	- Only provide metadata if audio file is not .wav
-	- if flag "-nomusicbrainz" enabled, only provide metadata from any metadata included in the MSR APIs
+	- if flag "-musicbrainz" enabled,  provide metadata from any metadata included in the MSR APIs AND from musicbrainz API
 	- if using musicbrainz, must not request from their API more than once a second
 - Add option to use filters (https://superuser.com/questions/323119/how-can-i-normalize-audio-using-ffmpeg) for normalized audio (some of the songs have loud asf peaks),optionally show these filters have been applied in the comments of the metadata
 ### Python CLI GUI
@@ -41,8 +41,10 @@ Detailed here are just the raw functional and non functional requirements consol
 		- if flag "-single" Download by Single (provided cID or song Name)
 		- if flag "-all" Disregard any names or cID provided (or just ignore if not provided) and literally download every single song from their servers
 		- if argument "-diff {"PATH TO COMPARE TO"}, check with all songs in the folder (and any subfolder), then search to download any songs that are missing from user
+		- "--skipmetadata": NOTE: implicitly should skip metadata for wav
+		- "--format" {mp3/flac/wav/ogg}
 	- For Both download options:
-		- if flag "-folder" enabled, they should download to the designated download folder in their own subfolders (even if "Download by Single" is used)
+		- if flag "-output" enabled, they should download to the designated download folder in their own subfolders (even if "Download by Single" is used)
 - Locally cache any downloaded .JSON files (except master lists) from MSR API to avoid making unnecessary API calls to their servers (EXCEPTION: can use cached master list .JSON when developing the CLI tool, to avoid unnecessary API calls)  
 	-  Also applies to any data gathered from musicbrainz API
 

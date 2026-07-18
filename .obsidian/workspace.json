@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Documentation/Raw Requirements (V1.0).md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Raw Requirements (V1.0)"
+              "title": "README"
             }
           }
         ]
@@ -185,31 +185,31 @@
   },
   "active": "89276190e6fc1c9a",
   "lastOpenFiles": [
-    "_Documentation/master_flow_diagram.drawio",
-    "_Documentation/search_flow_diagram.drawio",
-    "cache/953948.json",
-    "cache/514506.json",
-    "cache/461113.json",
-    "cache/514505.json",
-    "cache/125031.json",
-    "cache/779452.json",
-    "_Documentation/Images/preview_v0_1_0.png",
-    "_Documentation/Software Requirements and Specifications Document.md",
-    "README.md",
-    "cache/cid_album_cache.json",
-    "cache/cid_song_cache.json",
-    "cache/songs",
-    "_Documentation/Raw Requirements (V1.0).md",
+    "_MANUAL_TEST.py",
+    "__pycache__/arg_parse.cpython-312.pyc",
+    "arg_parse.py",
+    "output/空王冠.flac",
+    "output/空王冠.png",
+    "output/空王冠.wav",
+    "cache/514521.json",
+    "_TEST.py",
+    "TEST.py",
+    "output/Secret Escape.flac",
+    "output/Secret Escape.lrc",
+    "output/Secret Escape.png",
+    "output/Secret Escape.wav",
+    "output/此时圆.png",
+    "output/悖反构成.png",
     "tests/README.md",
+    "README.md",
+    "_Documentation/Raw Requirements (V1.0).md",
+    "_Documentation/Software Requirements and Specifications Document.md",
+    "_Documentation/Images/preview_v0_1_0.png",
     "output/Battleplan Obliteration.png",
     "output/Battleplan Obliteration (Instrumental).png",
     "output/Swelling Ink.png",
     "output/奔赴.png",
     "output/众怒.png",
-    "output/敬畏自由.png",
-    "output/还有明天.png",
-    "output/无缚者之夜.png",
-    "output/奔赴 (Instrumental).png",
     "Welcome.md"
   ]
 }
