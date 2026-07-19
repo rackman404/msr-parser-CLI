@@ -39,7 +39,8 @@ jobs:
       - name: "Install Project Libraries"
         run: |
           cd "Batch Files"
-          test_no_venv.bat
+          dir
+          ./test_no_venv.bat
           cd ..
 
       - name: "Upload coverage data"
