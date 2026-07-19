@@ -51,6 +51,8 @@ jobs:
   coverage:
     name: Coverage
     needs: tests
+    runs-on: "${{ matrix.os }}"
+
     steps:
       - name: "Check out the repo"
         uses: "actions/checkout@v2"
