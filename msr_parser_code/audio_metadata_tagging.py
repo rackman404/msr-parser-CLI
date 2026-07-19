@@ -9,8 +9,8 @@ from mutagen.flac import Picture, error as FLACError
 
 from enum import Enum
 
-from utility import FileFormat 
-import console_gui_utils
+from msr_parser_code.utility import FileFormat 
+import msr_parser_code.console_gui_utils as console_gui_utils
 
 
 

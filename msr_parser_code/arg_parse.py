@@ -1,5 +1,5 @@
 import argparse
-import utility
+import msr_parser_code.utility as utility
 
 #TODO https://stackoverflow.com/questions/18160078/how-do-you-write-tests-for-the-argparse-portion-of-a-python-module add tests
 #https://docs.python.org/3/howto/argparse.html 

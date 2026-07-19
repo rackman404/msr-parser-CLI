@@ -9,15 +9,15 @@ import json
 import os
 
 
-import ffmpeg_exec_controls
-import audio_metadata_tagging
-import console_gui_utils
-import os_checks
-from arg_parse import parse_args, user_input_parsed
+import msr_parser_code.ffmpeg_exec_controls as ffmpeg_exec_controls
+import msr_parser_code.audio_metadata_tagging as audio_metadata_tagging
+import msr_parser_code.console_gui_utils as console_gui_utils
+import msr_parser_code.os_checks as os_checks
+from msr_parser_code.arg_parse import parse_args, user_input_parsed
 
 from tqdm import tqdm
 
-from utility import FileFormat, DownloadMethod, SongSearchMetadata, MSRSongDataAPIFull, MSRSongDataAPIPartial, MSRAlbumDataAPIFull, MSRMasterListAlbums, MSRMasterListSongs, ProgramArguments, ConversionArguments, SearchArguments
+from msr_parser_code.utility import FileFormat, DownloadMethod, SongSearchMetadata, MSRSongDataAPIFull, MSRSongDataAPIPartial, MSRAlbumDataAPIFull, MSRMasterListAlbums, MSRMasterListSongs, ProgramArguments, ConversionArguments, SearchArguments
 
 #NOTE IMPORTANT, when using PyInstaller, shi may not work cause the launched executable will run in a temp folder somewhere different that the actual directory of the built exe.
 #https://stackoverflow.com/questions/404744/determining-application-path-in-a-python-exe-generated-by-pyinstaller
@@ -55,6 +55,8 @@ FOLDER_PATHS = {
     "DATA_DOWNLOAD_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./output//")), #NOTE THIS SHOULD ACTUALLY CHANGE IN WORKING_FOLDER_PATHS IF USER PASSES A CUSTOM ONE IN
     "CACHE_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./cache//")),
     "CACHE_SONG_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./cache/songs//")),
+    
+    "DEPENDENCIES_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./deps//")),
      
 }
 

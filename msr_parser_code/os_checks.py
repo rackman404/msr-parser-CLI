@@ -1,5 +1,5 @@
 import os
-import console_gui_utils
+import msr_parser_code.console_gui_utils as console_gui_utils
 
 
 def check_deps(dep_paths: dict) -> dict | None:
