@@ -1,3 +1,5 @@
+Last Modified 07-19
+
 NOTE: can't be bothered to constantly update this, if in doubt, refer to to README.md in project root
 
 Detailed here are just the raw functional and non functional requirements consolidated from several random places (i.e notepad, notion) i noted down, see the SRS document for a more official version. 

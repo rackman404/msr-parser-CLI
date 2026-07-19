@@ -1,0 +1,113 @@
+Last Modified 07-19
+
+# Overview
+only github actions script right now includes a "test suite". Will run the tests and check for code coverage.
+
+### Coverage Badge
+To generate a coverage badge, the following guide was used:
+https://nedbatchelder.com/blog/202209/making_a_coverage_badge 
+
+Some alterations was made:
+``` yaml 
+
+name: "Test Suite"
+
+on:
+  workflow_dispatch:
+
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  tests:
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}"
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+        python-version:
+          - "3.12"
+
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v2"
+
+      - name: "Set up Python"
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "${{ matrix.python-version }}"
+
+      - name: "Install Project Libraries"
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: "Install Project Libraries"
+        run: |
+          cd "Batch Files"
+          ./test_no_venv.bat
+          cd ..
+          dir
+
+      - name: "Upload coverage data"
+        uses: actions/upload-artifact@v4
+        with:
+          name: covdata
+          path: coverage.json
+
+  coverage:
+    name: Coverage
+    needs: tests
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+        python-version:
+          - "3.12"
+
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v2"
+
+      - name: "Set up Python"
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.12"
+
+      - name: "Download coverage data"
+        uses: actions/download-artifact@v4
+        with:
+          name: covdata
+
+      - name: "Combine"
+        run: |
+          export TOTAL=$(python -c "import json;print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
+          echo "total=$TOTAL" >> $GITHUB_ENV
+          echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Make badge"
+        uses: schneegans/dynamic-badges-action@v1.4.0
+        with:
+          # GIST_TOKEN is a GitHub personal access token with scope "gist".
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: fc92787fedce660105e575caa8402277   # replace with your real Gist id.
+          filename: covbadge.json
+          label: Coverage
+          message: ${{ env.total }}%
+          minColorRange: 50
+          maxColorRange: 90
+          valColorRange: ${{ env.total }}
+```
+
+- Had to update from "upload_artifact@v3" to @v4
+- Removed other OS except windows from the matrix (can't be bothered to test and build the thing on other OS's rn)
+- Modified the gistID obviously
+- Did not use the Tox python framework. Instead i'm just manually installing requirements and running a local .bat file like a neanderthal
+- Made it only run on workflow dispatch only. Might later choose to commit to branches to then merge to main or simply have it only be run by a actual "build" workflow script later

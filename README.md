@@ -1,10 +1,20 @@
 # msr-parser-CLI
 
+---
+### States
+
+- General
 ![Licenses|125](https://img.shields.io/github/license/rackman404/msr-parser-CLI.svg?style=for-the-badge)
 ![Last Commit|173](https://img.shields.io/github/last-commit/rackman404/msr-parser-CLI.svg?style=for-the-badge)
 ![Release|200](https://img.shields.io/github/v/release/rackman404/msr-parser-CLI.svg?style=for-the-badge)
 ![Commits Since](https://img.shields.io/github/commits-since/rackman404/msr-parser-CLI/latest.svg?style=for-the-badge)<a id="readme-top"></a>
 ![Release Date](https://img.shields.io/github/release-date/rackman404/msr-parser-CLI.svg?style=for-the-badge)
+
+- Testing (Ignore this, only 1 code module has any actual test cases)
+[![Test Suite](https://github.com/rackman404/msr-parser-CLI/actions/workflows/test_suite.yaml/badge.svg)](https://github.com/rackman404/msr-parser-CLI/actions/workflows/test_suite.yaml)
+![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rackman404/fc92787fedce660105e575caa8402277/raw/covbadge.json)
+
+---
 
 <div align="center">
   <h1 align="center">MSR Parser Python CLI (any maybe) GUI</h3>
@@ -22,16 +32,21 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
+    <li><a href="#status">Status</a> </li>
     <li><a href="#overview">Overview</a> </li>
-    <li><a href="#telemetry">Telemetry</a> </li>
-	<li><a href="#built-with">Built With</a></li>
+	<li><a href="#requirements">Requirements</a></li>
+	<li><a href="#usage">Usage</a></li>
     <li><a href="#getting-started-development">Getting Started (Development)</a></li>
     <li><a href="#documentation">Documentation</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#attributions-and-acknowledgements">Attributions and Acknowledgments</a></li>
+    <li><a href="#disclaimer-and-acknowledgements">Disclaimer and Acknowledgments</a></li>
   </ol>
 </details>
 
+
+# Status
+
+Working state but not complete. Technically functional (can indeed download songs and albums but stuff is missing (i.e album search is scuffed, some args are not implemented yet, etc...))
 
 # Overview
 ![preview](_Documentation/Images/preview_07_18_2.png)
@@ -42,7 +57,7 @@
 <sub>Preview With sample Album Download</sub>
 
 
-Python CLI for downloading songs from Arknights Soundtrack. Extremely overkill but I kind of wanted to write unit tests in Python and make an actual CLI tool for fun. 
+Python CLI for downloading songs from Arknights Soundtrack. Kind of overkill but I kind of wanted to go nuts with Python for a bit and make an actual CLI tool for fun. 
 
 
 # Requirements
@@ -111,6 +126,10 @@ Below are the supported/planned flags and arguments (all are optional except the
 
 
 ### Examples:
+![preview](_Documentation/Images/Example_args_07_19.png)
+Use of -s Missy to search for any songs with "Missy" in its name
+Use of -f flac to convert the raw .wav into a .flac
+All other flags are set to their defaults (i.e -m {mode} was not specified, so it will search by songs by default instead of album name)
 
 # Built With
 
@@ -121,6 +140,7 @@ Below are the supported/planned flags and arguments (all are optional except the
 *  [![Tech Stack Badge](https://img.shields.io/badge/mutagen-red?style=for-the-badge&logo=python&logoColor=61DAFB)](https://mutagen.readthedocs.io/en/latest/user/gettingstarted.html) - Audio File Metadata Library
 *  [![Tech Stack Badge](https://img.shields.io/badge/Requests-red?style=for-the-badge&logo=python&logoColor=61DAFB)](https://requests.readthedocs.io/en/latest/) - HTTP Library
 -  [![Tech Stack Badge](https://img.shields.io/badge/tqdm-red?style=for-the-badge&logo=python&logoColor=61DAFB)](https://tqdm.github.io/) - Console Progress Bar Library
+- [![Tech Stack Badge](https://img.shields.io/badge/Coverage-red?style=for-the-badge&logo=python&logoColor=61DAFB)](https://coverage.readthedocs.io/en/7.15.2/) - Test Case Code Coverage Library
 
 ### Languages
 * [![Tech Stack Badge](https://img.shields.io/badge/Python-green?style=for-the-badge&logo=python&logoColor=61DAFB)](https://www.python.org/) - Self Explanatory
@@ -165,7 +185,7 @@ I don't know why i made these ngl (I don't even know if these are correct, forgo
 *Level 1 Data Flow Diagram*
 
 ### Testing
-I have some unit tests done but Im lazy asf.
+Contained in "tests" folder. Use the "test.bat" file in "Batch Files" to run tests. Code coverage is also displayed on the github README.md. 
 
 ### Contributions
 Just fork the git repo and pip install requirements.txt or smth idk. Not much else to work on for this thing anyways as it should fit most of my personal requirements. 
@@ -181,7 +201,7 @@ This project uses [Obsidian](https://obsidian.md) for Markdown file editing. Mos
 
 # License
 
-
+See the LICENSE file or smth.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
