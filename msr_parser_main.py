@@ -1,21 +1,32 @@
+
+
 from enum import Enum
 import sys
 import time
-import argparse
 
 import requests
 import json
 import os
 
-from arg_parse import parse_args, user_input_parsed
+
 import ffmpeg_exec_controls
 import audio_metadata_tagging
 import console_gui_utils
 import os_checks
+from arg_parse import parse_args, user_input_parsed
 
 from tqdm import tqdm
 
 from utility import FileFormat, DownloadMethod, SongSearchMetadata, MSRSongDataAPIFull, MSRSongDataAPIPartial, MSRAlbumDataAPIFull, MSRMasterListAlbums, MSRMasterListSongs, ProgramArguments, ConversionArguments, SearchArguments
+
+#NOTE IMPORTANT, when using PyInstaller, shi may not work cause the launched executable will run in a temp folder somewhere different that the actual directory of the built exe.
+#https://stackoverflow.com/questions/404744/determining-application-path-in-a-python-exe-generated-by-pyinstaller
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    cwd = os.path.dirname(sys.executable)
+    print('running in a PyInstaller bundle')
+else:
+    cwd = os.path.dirname(__file__)
+    print('running in a normal Python process')
 
 
 #type MSR_file_dat = tuple[float, float]
@@ -28,10 +39,10 @@ MSR_ALL_ALBUMS_PATH  = r"https://monster-siren.hypergryph.com/api/albums"
 
 #data paths
 
-CID_SONG_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_song_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
-CID_ALBUM_CACHE_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/cid_album_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
+CID_SONG_CACHE_FILE_PATH = os.path.abspath(os.path.join(cwd, "./cache/cid_song_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
+CID_ALBUM_CACHE_FILE_PATH = os.path.abspath(os.path.join(cwd, "./cache/cid_album_cache.json")) #needed mainly for testing purposes, rather not constantly ping their servers for specific song cIds when testing this program
 
-GLOBAL_REQUESTS_HEADER = {'user-agent': 'MSR-Python-CLI-Downloader/V0.1 (email:jacky.zhang404@gmail.com gitrepo:)'}
+GLOBAL_REQUESTS_HEADER = {'user-agent': 'MSR-Python-CLI-Downloader/V0.1 (email:jacky.zhang404@gmail.com gitrepo: https://github.com/rackman404/msr-parser-CLI)'}
 GLOBAL_TIMEOUT = 5
 GLOBAL_RECONNECT_TIMER = 2.5
 
@@ -41,15 +52,15 @@ CACHE_DOWNLOAD_SONG_FOLDER_PATH = os.path.abspath(os.path.join(os.path.dirname(_
 """
 
 FOLDER_PATHS = {
-    "DATA_DOWNLOAD_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./output//")), #NOTE THIS SHOULD ACTUALLY CHANGE IN WORKING_FOLDER_PATHS IF USER PASSES A CUSTOM ONE IN
-    "CACHE_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache//")),
-    "CACHE_SONG_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(os.path.dirname(__file__), "./cache/songs//")),
+    "DATA_DOWNLOAD_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./output//")), #NOTE THIS SHOULD ACTUALLY CHANGE IN WORKING_FOLDER_PATHS IF USER PASSES A CUSTOM ONE IN
+    "CACHE_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./cache//")),
+    "CACHE_SONG_DOWNLOAD_SONG_FOLDER_PATH": os.path.abspath(os.path.join(cwd, "./cache/songs//")),
      
 }
 
 POSSIBLE_DEPENDENCIES_PATHS = {
     "FFMPEG": {
-        "relative_path": os.path.abspath(os.path.join(os.path.dirname(__file__), "./deps/ffmpeg.exe")),
+        "relative_path": os.path.abspath(os.path.join(cwd, "./deps/ffmpeg.exe")),
         "env_var": "ffmpeg",
     }
 }
@@ -426,6 +437,8 @@ def search_songs(
 
 
 def init():
+
+
     #initialization
     console_gui_utils.console_header("Program Initialization")
     #create_folders() #TODO delete when method below is done
@@ -461,6 +474,7 @@ if __name__ == "__main__":
 
     param_string = parse_params(parsed_args)
     console_gui_utils.console_start_screen(param_string) #TODO, pass the parsed args in here to show to console 
+    #TODO add another user confirmation just to see if args are correct
 
     main(parsed_args)
 

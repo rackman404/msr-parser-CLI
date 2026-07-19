@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="jqVl86aBA67ymabjHUhc" name="Page-1">
-        <mxGraphModel dx="2128" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2521" dy="805" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -61,6 +61,18 @@
                 <mxCell id="14" value="test.bat" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
                     <mxGeometry x="20" y="680" width="120" height="60" as="geometry"/>
                 </mxCell>
+                <mxCell id="37" value="/build/" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="8">
+                    <mxGeometry x="370" y="600" width="120" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="37">
+                    <mxGeometry x="45" y="45" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="/dist/" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="8">
+                    <mxGeometry x="370" y="730" width="120" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="39">
+                    <mxGeometry x="45" y="45" width="30" height="30" as="geometry"/>
+                </mxCell>
                 <mxCell id="16" value="Entry Point" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
                     <mxGeometry x="-20" y="170" width="100" height="60" as="geometry"/>
                 </mxCell>
@@ -99,6 +111,9 @@
                 </mxCell>
                 <mxCell id="15" value="Misc Files,&lt;br&gt;test.bat: execute to auto run any unit tests&lt;br&gt;.gitignore: mainly for ignoring any cached JSONs or data files in ./output&lt;br&gt;requirements.txt use pip install with it to install any external libraries needed&amp;nbsp;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
                     <mxGeometry x="-160" y="750" width="230" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="41" value="Pyinstaller DIrectories" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="730" width="100" height="190" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

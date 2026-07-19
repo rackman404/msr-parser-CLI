@@ -5,10 +5,6 @@ import utility
 #https://docs.python.org/3/howto/argparse.html 
 #https://www.reddit.com/r/learnpython/comments/obn1ig/argparse_how_do_i_add_a_flag_that_doesnt_require/
 
-TEST_ARGS = True
-#TEST_ARGS_PARAMS = ["missy", "-m", "single"]
-TEST_HELP = ["missy", "-h"]
-
 def user_input_parsed(input: list[str]):
     '''
     Where program Args should be processed, should return a error and failed exit code if formatted incorrectly. Should a list of args selected afterwards before proceeding to main code
@@ -19,7 +15,8 @@ def user_input_parsed(input: list[str]):
     # Positional (mandatory)
     parser = argparse.ArgumentParser(input)
     parser.add_argument("-s", "--search", 
-                help="The search term (NOTE: if a number is passed, will search by cID instead of name)",           
+                help="The search term (NOTE: if a number is passed, will search by cID instead of name)",    
+                required=True       
                 )
     
     # Optional Args (with parameters)
@@ -105,5 +102,3 @@ def parse_args(input: list[str]):
     #print (parsed_args)
 
     return parsed_args
-
-parsed = parse_args(TEST_HELP)

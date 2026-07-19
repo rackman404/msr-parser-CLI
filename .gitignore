@@ -221,4 +221,7 @@ deps/*
 output/*
 cache/*
 
+.obsidian/*
+
 !**/README*
+

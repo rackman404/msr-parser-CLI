@@ -4,3 +4,6 @@ requests
 tqdm
 #for audio file metadata tagging
 mutagen
+
+#for packaging into standalone CLI
+pyinstaller
