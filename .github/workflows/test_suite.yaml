@@ -39,20 +39,28 @@ jobs:
       - name: "Install Project Libraries"
         run: |
           cd "Batch Files"
-          dir
           ./test_no_venv.bat
           cd ..
+          dir
 
       - name: "Upload coverage data"
         uses: actions/upload-artifact@v4
         with:
           name: covdata
-          path: .coverage.*
+          path: coverage.json
 
   coverage:
     name: Coverage
     needs: tests
     runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+        python-version:
+          - "3.12"
 
     steps:
       - name: "Check out the repo"
