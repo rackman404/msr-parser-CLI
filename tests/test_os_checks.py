@@ -2,7 +2,7 @@ import unittest
 from unittest import mock
 import os.path
 
-import os_checks
+import msr_parser_code.os_checks as os_checks
 
 
 #Main test suite for OS Check script methods

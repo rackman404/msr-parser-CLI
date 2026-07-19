@@ -44,7 +44,7 @@ def user_input_parsed(input: list[str]):
         default=True)
 
     parser.add_argument("-w", "--watermark", 
-        help="Will skip downloading any .lrc files if a song has it",
+        help="Add a watermark to metadata comment field",
         action="store_true",
         default=False)
     
@@ -76,7 +76,7 @@ def map_to_arg_class(args):
     )
 
     arg_obj_metadata = utility.MetadataArguments(
-        #watermark = args.watermark
+        watermark = args.watermark
     )
 
     arg_obj_common = utility.ProgramArguments(

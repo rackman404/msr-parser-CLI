@@ -330,8 +330,6 @@ def search_songs(
         search_method: DownloadMethod, 
         exact: bool, 
         name: str, 
-
-
         #include_instrumental: bool = True, 
         #diff_folder_path: str = None
         ) -> list[SongSearchMetadata]:
@@ -439,8 +437,6 @@ def search_songs(
 
 
 def init():
-
-
     #initialization
     console_gui_utils.console_header("Program Initialization")
     #create_folders() #TODO delete when method below is done
@@ -456,7 +452,7 @@ def init():
     else:
         return folders, deps_path
 
-#TODO do this bruh
+#TODO do this bruh (put this into arg_parse.py as well maybe)
 def parse_params(args: ProgramArguments):
     '''
     parse the arguments to show to user

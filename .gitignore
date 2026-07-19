@@ -225,3 +225,7 @@ cache/*
 
 !**/README*
 
+# ignore test coverage files
+.coverage
+coverage.json
+

@@ -7,3 +7,6 @@ mutagen
 
 #for packaging into standalone CLI
 pyinstaller
+
+#unit test coverage
+coverage

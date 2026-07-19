@@ -1,6 +1,10 @@
 # msr-parser-CLI
 
-<a id="readme-top"></a>
+![Licenses|125](https://img.shields.io/github/license/rackman404/msr-parser-CLI.svg?style=for-the-badge)
+![Last Commit|173](https://img.shields.io/github/last-commit/rackman404/msr-parser-CLI.svg?style=for-the-badge)
+![Release|200](https://img.shields.io/github/v/release/rackman404/msr-parser-CLI.svg?style=for-the-badge)
+![Commits Since](https://img.shields.io/github/commits-since/rackman404/msr-parser-CLI/latest.svg?style=for-the-badge)<a id="readme-top"></a>
+![Release Date](https://img.shields.io/github/release-date/rackman404/msr-parser-CLI.svg?style=for-the-badge)
 
 <div align="center">
   <h1 align="center">MSR Parser Python CLI (any maybe) GUI</h3>
