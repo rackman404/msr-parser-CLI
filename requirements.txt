@@ -10,3 +10,6 @@ pyinstaller
 
 #unit test coverage
 coverage
+
+#Linting
+pylint

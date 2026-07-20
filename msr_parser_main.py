@@ -13,7 +13,7 @@ import msr_parser_code.ffmpeg_exec_controls as ffmpeg_exec_controls
 import msr_parser_code.audio_metadata_tagging as audio_metadata_tagging
 import msr_parser_code.console_gui_utils as console_gui_utils
 import msr_parser_code.os_checks as os_checks
-from msr_parser_code.arg_parse import parse_args, user_input_parsed
+from msr_parser_code.arg_parse import parse_args
 
 from tqdm import tqdm
 
@@ -71,29 +71,6 @@ POSSIBLE_DEPENDENCIES_PATHS = {
 WORKING_DEPENDENCIES_PATHS = None
 WORKING_FOLDER_PATHS = None 
 
-''' obsolete
-def create_folders():
-    console_gui_utils.console_sub_header("Checking Folders")
-    
-    #kinda stupid to hardcode each folder like this but theres really only 3 folders to do this to so whatever
-    if not os.path.exists(os.path.dirname(CID_SONG_CACHE_FILE_PATH)): #recursively create any unknown directories
-        print(console_gui_utils.bcolors.OKGREEN + "created JSON cache folder" + console_gui_utils.bcolors.ENDC)
-        os.makedirs(os.path.dirname(CID_SONG_CACHE_FILE_PATH))
-    else:
-        print(console_gui_utils.bcolors.OKGREEN + "cache exists already" + console_gui_utils.bcolors.ENDC)
-    if not os.path.exists((DATA_DOWNLOAD_FOLDER_PATH)): #recursively create any unknown directories
-        print(console_gui_utils.bcolors.OKGREEN + "created song output folder" + console_gui_utils.bcolors.ENDC)
-        os.makedirs((DATA_DOWNLOAD_FOLDER_PATH))
-    else:
-        print(console_gui_utils.bcolors.OKGREEN + "song output exists already" + console_gui_utils.bcolors.ENDC)
-    if not os.path.exists((CACHE_DOWNLOAD_SONG_FOLDER_PATH)): #recursively create any unknown directories
-        print(console_gui_utils.bcolors.OKGREEN + "created specific song output folder" + console_gui_utils.bcolors.ENDC)
-        os.makedirs((CACHE_DOWNLOAD_SONG_FOLDER_PATH))
-    else:
-        print(console_gui_utils.bcolors.OKGREEN + "specific song JSON cache exists already" + console_gui_utils.bcolors.ENDC)
-'''
-
-
 # --------------
 
 #Content Retrieval and Parsing Methods
@@ -108,18 +85,18 @@ def save_json_msr(data_type: str, file_output_path: str):
     '''
 
     #print("(REMOVE ON BUILD) request was made")
-    print(console_gui_utils.bcolors.WARNING + "Waiting one second before making API call" + console_gui_utils.bcolors.ENDC)
+    console_gui_utils.console_print_warn("Waiting one second before making API call")
     time.sleep(1)
     try:
-        print(console_gui_utils.bcolors.OKGREEN + "Downloading a metadata json from ("+data_type+") " + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_success("Downloading a metadata json from ("+data_type+") ")
         r = requests.get(data_type, headers=GLOBAL_REQUESTS_HEADER, timeout=GLOBAL_TIMEOUT)
     except requests.exceptions.Timeout as e:
-        print (console_gui_utils.bcolors.FAIL + "took too long (timed out for "+GLOBAL_TIMEOUT+" seconds) to request data at: " + str(e) + " Will make another attempt in "+str(GLOBAL_RECONNECT_TIMER)+" second (if not working, close program with CTRL+C):" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_err("took too long (timed out for "+GLOBAL_TIMEOUT+" seconds) to request data at: " + str(e) + " Will make another attempt in "+str(GLOBAL_RECONNECT_TIMER)+" second (if not working, close program with CTRL+C):")
         time.sleep(GLOBAL_RECONNECT_TIMER)
         save_json_msr(data_type, file_output_path)
         return
     except requests.exceptions.ConnectionError as e:
-        print (console_gui_utils.bcolors.FAIL + "General connection error: " + str(e) + " Will make another attempt in "+str(GLOBAL_RECONNECT_TIMER)+" second (if not working, close program with CTRL+C):" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_err("General connection error: " + str(e) + " Will make another attempt in "+str(GLOBAL_RECONNECT_TIMER)+" second (if not working, close program with CTRL+C):")
         time.sleep(GLOBAL_RECONNECT_TIMER)
         save_json_msr(data_type, file_output_path)
         return
@@ -155,7 +132,7 @@ def msr_get_all_cid(get_from_api: bool = False) -> tuple[MSRMasterListSongs, MSR
         save_json_msr(MSR_ALL_ALBUMS_PATH, CID_ALBUM_CACHE_FILE_PATH)
         print ("success \n ------------------------------------")
 
-    print (console_gui_utils.bcolors.OKGREEN + "local master JSON lists exists, retrieving jsons now" + console_gui_utils.bcolors.ENDC)
+    console_gui_utils.console_print_success("local master JSON lists exists, retrieving jsons now")
     with open(CID_SONG_CACHE_FILE_PATH, "r") as file:
         data_songs = json.load(file)
         file.close()
@@ -176,10 +153,10 @@ def download_file(url: str, fileName: str):
     true_file_path = os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], fileName)
 
     if (os.path.isfile(true_file_path) == True):
-        print(console_gui_utils.bcolors.WARNING + "WARNING: There is a file with the same exact file name (" + fileName + ") already in the download destination, skipping download" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_warn("WARNING: There is a file with the same exact file name (" + fileName + ") already in the download destination, skipping download")
         return true_file_path
 
-    print(console_gui_utils.bcolors.WARNING + "Waiting one second before making API call" + console_gui_utils.bcolors.ENDC)
+    console_gui_utils.console_print_warn("Waiting one second before making API call" )
     time.sleep(1)
     with requests.get(url, headers=GLOBAL_REQUESTS_HEADER, stream=True) as r:
         #print("(REMOVE ON BUILD) request was made")
@@ -270,23 +247,23 @@ def main(
     #present user with download options and ask them if they wish to proceed (if there were any songs found at all)
     if (len(songs_found) != 0):
         #show the names of songs to download and allow the user to make a Y/N choice wheather to continue
-        print(console_gui_utils.bcolors.OKGREEN + str(len(songs_found)) + " songs were found matching search criteria, they are:" + console_gui_utils.bcolors.ENDC)
-        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_success(str(len(songs_found)) + " songs were found matching search criteria, they are:")
+        console_gui_utils.console_print_blue("--------------------")
+        
         print(f"{"Song Name":<100} {"Album Name"}")
         for song in songs_found:
-                #print(console_gui_utils.bcolors.OKBLUE + "|song: " + song['song_data']['name'] + " | album name: " + song['albumName'] + console_gui_utils.bcolors.ENDC)
                 print(f"{song['song_data']['name']:<100} {song['albumName']}")
-        print(console_gui_utils.bcolors.OKBLUE + "--------------------" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_blue("--------------------")
         if (args.user_confirmation == True):  
             user_confirmation = input("do you wish to continue to downloads? Y/N ")
             if (user_confirmation == "Y"):
-                print(console_gui_utils.bcolors.OKGREEN + "will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")" + console_gui_utils.bcolors.ENDC)
+                console_gui_utils.console_print_success("will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")")
             else:
                 print("Exiting...")
                 sys.exit()
                 return       
     else:
-        print(console_gui_utils.bcolors.FAIL + "No Songs were found terminating" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_err("No Songs were found terminating")
         print("Exiting...")
         sys.exit()
         return    
@@ -306,22 +283,22 @@ def main(
         console_gui_utils.console_sub_header("Current Song: " + song['songMetaData']['name'])
         console_gui_utils.console_sub_header("-")
 
-        print(console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Downloading all required Assets (i.e .lrc file (if applicable), .png file, .wav file)" + console_gui_utils.bcolors.ENDC)
+        console_gui_utils.console_print_blue(">>>>>>>>>>>>>>>>> Downloading all required Assets (i.e .lrc file (if applicable), .png file, .wav file)")
         file_path = download_file(song["songMetaData"]["sourceUrl"], song["songMetaData"]['name'] + ".wav")
         file_path = download_file(song["coverImgUrl"], song["songMetaData"]['name'] + ".png")
         if (args.download_args.lyrics == False or song["songMetaData"]["lyricUrl"] == None):
-            print (console_gui_utils.bcolors.WARNING + "either no lyrics exists for this song or user has disabled lyric download. Skipping lyric download for song" + console_gui_utils.bcolors.ENDC)
+            console_gui_utils.console_print_warn("either no lyrics exists for this song or user has disabled lyric download. Skipping lyric download for song")
         else:
             lrc_path = download_file(song["songMetaData"]["lyricUrl"], song["songMetaData"]['name'] + ".lrc")
         #2.1 for each file we should convert file and add metadata in first before moving onto the next song to download
         if (args.convert_args.convert_format == FileFormat.WAV):
-            print (console_gui_utils.bcolors.WARNING + "no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)" + console_gui_utils.bcolors.ENDC)
+            console_gui_utils.console_print_warn("no file conversions or metadata has been added (.wav was specified by user and .wav does not support metadata)")
         else:
-            print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now converting .wav to ." + args.convert_args.convert_format.value + " " + console_gui_utils.bcolors.ENDC)
+            console_gui_utils.console_print_blue(">>>>>>>>>>>>>>>>> Now converting .wav to ." + args.convert_args.convert_format.value + " ")
             ffmpeg_exec_controls.convert_file(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".wav"), os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + args.convert_args.convert_format.value), ffmpeg_path=WORKING_DEPENDENCIES_PATHS["FFMPEG"])
             
             #2.1 now adding metadata
-            print (console_gui_utils.bcolors.OKBLUE + ">>>>>>>>>>>>>>>>> Now Adding Metadata to converted file" + console_gui_utils.bcolors.ENDC)
+            console_gui_utils.console_print_blue(">>>>>>>>>>>>>>>>> Now Adding Metadata to converted file")
             audio_metadata_tagging.add_metadata(os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + "." + args.convert_args.convert_format.value), args.convert_args.convert_format, song, os.path.join(WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"], song["songMetaData"]['name'] + ".png"), args.metadata_args.watermark)
         print("") #print new line to make it easier to read output
 

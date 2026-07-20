@@ -1,10 +1,13 @@
 # Taken and modified from https://nedbatchelder.com/blog/202209/making_a_coverage_badge  
-
 name: "Test Suite"
 
 on:
   workflow_dispatch:
-
+  workflow_call:
+    secrets:
+      GIST_TOKEN:
+        description: 'Gist Token for generating coverage badge'
+        required: true
 
 defaults:
   run:

@@ -1,0 +1,46 @@
+name: "pylint"
+
+on:
+  workflow_dispatch:
+  #https://github.com/orgs/community/discussions/164673
+  push:
+    paths:
+      - 'msr_parser_code/**'
+      - 'msr_parser_code/*'
+      - 'msr_parser_main.py'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  tests:
+    name: "Python Linting"
+    runs-on: "${{ matrix.os }}"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+        python-version:
+          - "3.12"
+
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v2"
+
+      - name: "Set up Python"
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "${{ matrix.python-version }}"
+
+      - name: "Install Project Libraries"
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: "Performing Linting"
+        run: |
+          cd "Batch Files"
+          ./lint_no_venv.bat
+

@@ -4,15 +4,22 @@
 ### States
 
 - General
-![Licenses|125](https://img.shields.io/github/license/rackman404/msr-parser-CLI.svg?style=for-the-badge)
-![Last Commit|173](https://img.shields.io/github/last-commit/rackman404/msr-parser-CLI.svg?style=for-the-badge)
-![Release|200](https://img.shields.io/github/v/release/rackman404/msr-parser-CLI.svg?style=for-the-badge)
-![Commits Since](https://img.shields.io/github/commits-since/rackman404/msr-parser-CLI/latest.svg?style=for-the-badge)<a id="readme-top"></a>
-![Release Date](https://img.shields.io/github/release-date/rackman404/msr-parser-CLI.svg?style=for-the-badge)
+  
+![Licenses](https://img.shields.io/github/license/rackman404/msr-parser-CLI.svg)
+![Last Commit](https://img.shields.io/github/last-commit/rackman404/msr-parser-CLI.svg)
+![Release](https://img.shields.io/github/v/release/rackman404/msr-parser-CLI.svg)
+![Release Date](https://img.shields.io/github/release-date/rackman404/msr-parser-CLI.svg)
 
 - Testing (Ignore this, only 1 code module has any actual test cases)
+  
 [![Test Suite](https://github.com/rackman404/msr-parser-CLI/actions/workflows/test_suite.yaml/badge.svg)](https://github.com/rackman404/msr-parser-CLI/actions/workflows/test_suite.yaml)
 ![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rackman404/fc92787fedce660105e575caa8402277/raw/covbadge.json)
+
+- Linting (Fails when Score is below 8/10):
+
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
+[![pylint](https://github.com/rackman404/msr-parser-CLI/actions/workflows/pylint.yaml/badge.svg)](https://github.com/rackman404/msr-parser-CLI/actions/workflows/pylint.yaml)
+
 
 ---
 
@@ -57,8 +64,10 @@ Working state but not complete. Technically functional (can indeed download song
 <sub>Preview With sample Album Download</sub>
 
 
-Python CLI for downloading songs from Arknights Soundtrack. Kind of overkill but I kind of wanted to go nuts with Python for a bit and make an actual CLI tool for fun. 
+Python CLI for downloading songs from Arknights Soundtrack. Kind of overkill but I kind of wanted to make a proper python application for a bit and make an actual CLI tool for fun. 
 
+### Future
+Might repurpose this application for other uses (i.e replace or add additional download sources)
 
 # Requirements
 
