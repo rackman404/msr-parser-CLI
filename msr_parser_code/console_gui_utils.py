@@ -76,15 +76,17 @@ def console_start_screen(args: str):
     print ("        add metadata to new audio file (if converted in previous step)")
     print ("")
 
+    console_sub_header("Help")
+    print ("Please use the -help flag or visit the repo hosted at "
+           "https://github.com/rackman404/msr-parser-CLI for more information")
+
     #show which flags and parameters have been set by user input
     console_sub_header("Program Flags and Parameters Set by User")
     print (args)
     print ("")
 
     #show which flags and parameters have been set by user input
-    console_sub_header("Help")
-    print ("Please use the -help flag or visit the repo hosted at "
-           "https://github.com/rackman404/msr-parser-CLI for more information")
+
 
 def console_print_err(msg: str, new_line: bool = True):
     """Prints a error message wrapped with red text"""

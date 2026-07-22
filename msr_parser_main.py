@@ -255,8 +255,9 @@ def main(
                 print(f"{song['song_data']['name']:<100} {song['albumName']}")
         console_gui_utils.console_print_blue("--------------------")
         if (args.user_confirmation == True):  
-            user_confirmation = input("do you wish to continue to downloads? Y/N ")
-            if (user_confirmation == "Y"):
+            console_gui_utils.console_print_warn("do you wish to continue to downloads? Y/N " , new_line= False)
+            user_confirmation = input()
+            if (user_confirmation.lower() == "y"):
                 console_gui_utils.console_print_success("will now download at (PATH: " + WORKING_FOLDER_PATHS["DATA_DOWNLOAD_FOLDER_PATH"] + ")")
             else:
                 print("Exiting...")
@@ -449,7 +450,14 @@ if __name__ == "__main__":
 
     param_string = parse_params(parsed_args)
     console_gui_utils.console_start_screen(param_string) #TODO, pass the parsed args in here to show to console 
+    
     #TODO add another user confirmation just to see if args are correct
+    if (parsed_args.user_confirmation == True):  
+        console_gui_utils.console_print_warn("Are these arguments correct? Y/N " , new_line= False)
+        user_confirmation = input()
+        if user_confirmation.lower() != "y":
+            print("Exiting...")
+            sys.exit()
 
     main(parsed_args)
 

@@ -17,13 +17,16 @@ def _user_input_parsed(raw_args: list[str]) -> argparse.Namespace:
     Should be implementing the arguments specified in the README.md 
     (but only the ones that currently do anything (i.e implemented features))
 
-
+    NOTE perhaps do this shit in a loop by iterating through argument dataclass variables instead of manually setting each one.
     '''
     # Positional (mandatory)
     # NOTE raw_args is not parsed here SPECIFICALLY so its easily testable 
     # and usable with or without sys.argv.
     # Instead raw_args is passed below in parser.parse_args(raw_args)
     parser = argparse.ArgumentParser()
+
+    #get the defaults args by creating a instance with the default args
+    defaults = utility.ProgramArguments() 
 
     #NOTE i did not know not using "-" simply lets you enter in a input as a argument without
     # specifying flag lmao
@@ -37,36 +40,39 @@ def _user_input_parsed(raw_args: list[str]) -> argparse.Namespace:
             Album name/cID or Song name/cID, or downloads all songs, \
             or downloads songs that don't exist on user hard drive.",
         type=utility.DownloadMethod, choices=list(utility.DownloadMethod),
-        default= utility.DownloadMethod.SINGLE)
+        default= defaults.search_args.mode)
+    
     parser.add_argument("-f", "--format",
         help="Will convert downloaded music files to the following format",
         type=utility.FileFormat, choices=list(utility.FileFormat),
-        default= utility.FileFormat.WAV)
+        default= defaults.convert_args.convert_format)
 
     # Optional Flag Setting Args
     parser.add_argument("--noexact",
         help="If flag is enabled, will search using the provided search term as a substring",
         action="store_true",
-        default=False)
+        default=defaults.search_args.exact)
+    
     parser.add_argument("-d", "--diff",
         help="From found songs, only download those that don't exist in output directory",
         action="store_true",
         default=False)
+    
     parser.add_argument("--nolyrics",
         help="Will skip downloading any .lrc files if a song has it",
         action="store_false",
-        default=True)
+        default=defaults.download_args.lyrics)
     parser.add_argument("-w", "--watermark",
         help="Add a watermark to metadata comment field",
         action="store_true",
-        default=False)
+        default=defaults.metadata_args.watermark)
 
     #COMMON ARGS ---
     parser.add_argument("-y", "--skipuser",
         help="Will skip user confirmation after presenting found songs to user \
             (and any other user input).",
         action="store_false",
-        default=True)
+        default=defaults.user_confirmation)
         
     parser.args = parser.parse_args(raw_args)
     return parser.args
