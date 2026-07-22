@@ -1,5 +1,9 @@
 name: Build Executable
 
+# https://github.com/github/vscode-github-actions/issues/47, for suppressing warnings in github actions vscode extension
+env: 
+  now: ""
+  nowtag: ""
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.

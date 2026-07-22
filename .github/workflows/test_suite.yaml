@@ -1,6 +1,10 @@
 # Taken and modified from https://nedbatchelder.com/blog/202209/making_a_coverage_badge  
 name: "Test Suite"
 
+# https://github.com/github/vscode-github-actions/issues/47, for suppressing warnings in github actions vscode extension
+env: 
+  total: "" #
+
 on:
   workflow_dispatch:
   workflow_call:
