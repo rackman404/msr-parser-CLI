@@ -1,11 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram id="jqVl86aBA67ymabjHUhc" name="Page-1">
-        <mxGraphModel dx="2128" dy="615" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1407" dy="271" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="8" value="./Root/" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="90" y="110" width="510" height="930" as="geometry"/>
+                    <mxGeometry x="90" y="110" width="510" height="1180" as="geometry"/>
                 </mxCell>
                 <mxCell id="2" value="msr_parser_main.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="8" vertex="1">
                     <mxGeometry x="20" y="60" width="120" height="60" as="geometry"/>
@@ -55,16 +55,19 @@
                 <mxCell id="40" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="39" vertex="1">
                     <mxGeometry x="45" y="45" width="30" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="45" value="/Batch Files/" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
-                    <mxGeometry x="10" y="720" width="270" height="110" as="geometry"/>
+                <mxCell id="45" value="/.github/workflows" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
+                    <mxGeometry x="20" y="940" width="270" height="200" as="geometry"/>
                 </mxCell>
-                <mxCell id="14" value="test.bat" style="rounded=0;whiteSpace=wrap;html=1;" parent="45" vertex="1">
+                <mxCell id="14" value="build_executable.yaml" style="rounded=0;whiteSpace=wrap;html=1;" parent="45" vertex="1">
                     <mxGeometry x="10" y="30" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="42" value="build.bat" style="rounded=0;whiteSpace=wrap;html=1;" parent="45" vertex="1">
+                <mxCell id="42" value="pylint.yaml" style="rounded=0;whiteSpace=wrap;html=1;" parent="45" vertex="1">
                     <mxGeometry x="140" y="30" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="46" value="/msr_parser_code" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="8">
+                <mxCell id="51" value="test_suite.yaml" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="45">
+                    <mxGeometry x="10" y="110" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="/msr_parser_code" style="swimlane;whiteSpace=wrap;html=1;" parent="8" vertex="1">
                     <mxGeometry x="20" y="130" width="180" height="500" as="geometry"/>
                 </mxCell>
                 <mxCell id="7" value="arg_parse.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="46" vertex="1">
@@ -84,6 +87,12 @@
                 </mxCell>
                 <mxCell id="6" value="ffmpeg_exec_controls.py" style="rounded=0;whiteSpace=wrap;html=1;" parent="46" vertex="1">
                     <mxGeometry x="10" y="420" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="54" value="/_Documentation" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="8">
+                    <mxGeometry x="350" y="900" width="150" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="59" value="..." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="54">
+                    <mxGeometry x="65" y="60" width="30" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="16" value="Entry Point" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
                     <mxGeometry x="-20" y="170" width="100" height="60" as="geometry"/>
@@ -106,7 +115,7 @@
                 <mxCell id="30" value="Parse CLI Arguments" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
                     <mxGeometry x="-60" y="270" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="31" value="Last Modified: 07-18" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                <mxCell id="31" value="Last Modified: 07-21" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
                     <mxGeometry x="-55" y="110" width="130" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="32" value="Checks and creates any directories/folders/exes&amp;nbsp;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
@@ -121,11 +130,32 @@
                 <mxCell id="36" value="Song Metadata Handler" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
                     <mxGeometry x="-70" y="580" width="140" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="Misc Files&lt;br&gt;build.bat: build using pyinstaller&lt;br&gt;test.bat run all unit tests&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
-                    <mxGeometry x="-90" y="780" width="170" height="120" as="geometry"/>
+                <mxCell id="15" value="Batch Files&lt;br&gt;build.bat: build using pyinstaller&lt;br&gt;test.bat run all unit tests&lt;div&gt;&lt;font&gt;lint.bat: run static lint analysis&lt;br&gt;&lt;/font&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="-90" y="860" width="170" height="130" as="geometry"/>
                 </mxCell>
                 <mxCell id="41" value="Pyinstaller DIrectories" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" parent="1" vertex="1">
                     <mxGeometry x="620" y="790" width="100" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="/Batch Files/" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="840" width="270" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" value="test.bat" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="47">
+                    <mxGeometry x="10" y="30" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="49" value="build.bat" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="47">
+                    <mxGeometry x="140" y="30" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" value="lint.bat" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="47">
+                    <mxGeometry x="10" y="110" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" value="Misc Files&lt;br&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" vertex="1" parent="1">
+                    <mxGeometry x="-90" y="750" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="Github Actions Scripts&lt;br&gt;&lt;div&gt;&lt;div&gt;Self explanatory&lt;/div&gt;&lt;/div&gt;" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" vertex="1" parent="1">
+                    <mxGeometry x="-95" y="1120" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="60" value="Markdown Documentatation" style="shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=center;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="1010" width="170" height="150" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

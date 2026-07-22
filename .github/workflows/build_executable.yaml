@@ -23,8 +23,8 @@ on:
 
 jobs:
   unit_test:
-    uses: ./.github/workflows/test_suite.yaml
-    secrets: #inherit
+    uses: ./.github/workflows/test_suite.yaml 
+    secrets: #inherit 
       GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
 
   build:

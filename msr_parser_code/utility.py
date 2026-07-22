@@ -15,6 +15,7 @@ class DownloadMethod(Enum):
     SINGLE = "single"
     ALBUM = "album"
     ALL = "all"
+    BOTH = "both"
 
     def __str__(self):
         return self.value

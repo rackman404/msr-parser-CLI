@@ -23,7 +23,8 @@ def check_deps(dep_paths: dict) -> dict | None:
     try:
         console_gui_utils.console_sub_header("Checking for Dependencies")
         for dep_key in dep_paths:
-            check_rel = os.path.isfile(dep_paths[dep_key]["relative_path"])
+            #NOTE this checks if it exists AND if its a file
+            check_rel = os.path.isfile(dep_paths[dep_key]["relative_path"]) 
             check_env = os.environ.get(dep_paths[dep_key]["env_var"])
 
             print("Checking for " + dep_key +"("+dep_paths[dep_key]["relative_path"] + ").... ",
@@ -51,8 +52,6 @@ def check_deps(dep_paths: dict) -> dict | None:
 
 def create_folders(hard_coded_paths: dict, user_data_output_folder: str = None) -> dict | None:
     '''
-    stub, implement later
-
     PARAMS:
     - hard_coded_paths: the actual hard coded paths
     - user_paths: create any user designated output folder (OPTIONAL)
@@ -83,23 +82,21 @@ def create_folders(hard_coded_paths: dict, user_data_output_folder: str = None) 
                 console_gui_utils.console_print_success(
                     "folder exists at: " + hard_coded_paths[folder_key] + " folder")
 
-        if user_data_output_folder != None:
-            console_gui_utils.console_print_warn(
-                "detected user provided output directory that doesn't exist, creating now:")
+        new_dict = hard_coded_paths
 
-            if not os.path.exists(user_data_output_folder):
+        if user_data_output_folder != None:
+            #console_gui_utils.console_print_warn(
+            #    "detected user provided output directory that doesn't exist, creating now:")
+
+            if os.path.exists(user_data_output_folder):
                 console_gui_utils.console_print_success(
                     "folder exists at: " + hard_coded_paths[folder_key] + " folder")
-
-                os.makedirs(os.path.dirname(user_data_output_folder))
-
-        new_dict = hard_coded_paths
+                new_dict["DATA_DOWNLOAD_FOLDER_PATH"] = user_data_output_folder
+            else:
+                return None
 
     except Exception as e:
         console_gui_utils.console_print_err("ERROR CREATING/CHECKING FOLDERS: " + str(e))
         return None
-
-    if user_data_output_folder != None:
-        new_dict["DATA_DOWNLOAD_FOLDER_PATH"] = user_data_output_folder
 
     return new_dict

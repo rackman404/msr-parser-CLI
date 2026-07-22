@@ -16,12 +16,19 @@ def _user_input_parsed(raw_args: list[str]) -> argparse.Namespace:
     Where program Args should be processed,
     Should be implementing the arguments specified in the README.md 
     (but only the ones that currently do anything (i.e implemented features))
+
+
     '''
     # Positional (mandatory)
-    parser = argparse.ArgumentParser(raw_args)
-    parser.add_argument("-s", "--search",
-                help="The search term (NOTE: search by cID if number is used)",
-                required=True
+    # NOTE raw_args is not parsed here SPECIFICALLY so its easily testable 
+    # and usable with or without sys.argv.
+    # Instead raw_args is passed below in parser.parse_args(raw_args)
+    parser = argparse.ArgumentParser()
+
+    #NOTE i did not know not using "-" simply lets you enter in a input as a argument without
+    # specifying flag lmao
+    parser.add_argument( "search",
+                help="The search term (NOTE: search by cID if number is used)"
                 )
 
     # Optional Args (with parameters)
@@ -60,7 +67,8 @@ def _user_input_parsed(raw_args: list[str]) -> argparse.Namespace:
             (and any other user input).",
         action="store_false",
         default=True)
-    parser.args = parser.parse_args()
+        
+    parser.args = parser.parse_args(raw_args)
     return parser.args
 
 

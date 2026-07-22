@@ -89,7 +89,7 @@ Run the thing from command line from a terminal. Supply with [Arguments](https:/
 ### Possible Flags and Arguments 
 
 NOTE: 
-- -s {search term} or --search {search term} MUST be provided.
+- a search term MUST be provided.
 - Some arguments have no effect depending on other arguments (i.e --skiptags won't do anything for .wav files since those files don't support metadata tagging to being with)
 
 Below are the supported/planned flags and arguments (all are optional except the search term one) that can be set before program is run. They have been split into multiple categories depending on which part of the pipeline they affect
@@ -103,12 +103,12 @@ Below are the supported/planned flags and arguments (all are optional except the
 | --output {"folder_path"} |         | Changes output directory of downloaded files. NOTE, if -m diff is used, this must always be provided | built in output folder used by application ("./output") |                              |
 
 ### Search Args
-| Argument     | Options           | Behaviour                                                                                   | Default Behaviour if not used                                                   | Implemented                                                        |
-| ------------ | ----------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| -s --search  |                   | The Search Term                                                                             | no default, MUST BE PROVIDED (Literally the only Mandatory Argument in program) | <ul><li>- [x]</li><br> </ul>                                       |
-| --noexact    |                   | If flag is enabled, will search using the provided search term as a **substring**           | will search and match songs ONLY if exact match                                 | <ul><li>- [x]</li><br> </ul>                                       |
-| -m {options} | single/ album/all | Searches AND downloads either using Album name/cID or Song name/cID, or downloads all songs | Search and Downloads by single song                                             | <br> <ul><li>- [x] single </li><br> <li>- [x] album</li><br> </ul> |
-| -d --diff    |                   | From found songs, only download those that don't exist in output directory.                 |                                                                                 |                                                                    |
+| Argument     | Options                | Behaviour                                                                                                                                                              | Default Behaviour if not used                                                   | Implemented                                                        |
+| ------------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| {search}     |                        | The Search Term (no -{flag} required, just type the search term)                                                                                                       | no default, MUST BE PROVIDED (Literally the only Mandatory Argument in program) | <ul><li>- [x]</li><br> </ul>                                       |
+| --noexact    |                        | If flag is enabled, will search using the provided search term as a **substring**                                                                                      | will search and match songs ONLY if exact match                                 | <ul><li>- [x]</li><br> </ul>                                       |
+| -m {options} | single/ album/all/both | Searches AND downloads either using Album name/cID or Song name/cID, or downloads all songs.<br><br>Both: checks singles and albums then performs a union on both sets | Search and Downloads by single song                                             | <br> <ul><li>- [x] single </li><br> <li>- [x] album</li><br> </ul> |
+| -d --diff    |                        | From found songs, only download those that don't exist in output directory.                                                                                            |                                                                                 |                                                                    |
 
 ### Download Args
 | Argument   | Options | Behaviour                                                               | Default Behaviour if not used                  | Implemented                  |
@@ -135,8 +135,8 @@ Below are the supported/planned flags and arguments (all are optional except the
 
 
 ### Examples:
-![preview](_Documentation/Images/Example_args_07_19.png)
-Use of -s Missy to search for any songs with "Missy" in its name
+TODO EXAMPLE
+Use of Missy to search for any songs with "Missy" in its name
 Use of -f flac to convert the raw .wav into a .flac
 All other flags are set to their defaults (i.e -m {mode} was not specified, so it will search by songs by default instead of album name)
 
