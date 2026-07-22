@@ -8,7 +8,7 @@ from typing import TypedDict #using this for type hinting in dicts
 
 #using this cause i don't wanna create init and stuff for simple data classes
 #(so that i can access data using dot notation on class attribute)
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 class DownloadMethod(Enum):
     '''Possible search options when downloading'''
@@ -32,27 +32,27 @@ class FileFormat(Enum):
 @dataclass
 class SearchArguments:
     '''Search arguments for search module'''
-    search_term: str
-    mode: DownloadMethod = DownloadMethod.SINGLE
-    exact: bool = True
+    search_term: str = field(default_factory=lambda: "")
+    mode: DownloadMethod = field(default_factory=lambda:DownloadMethod.SINGLE)
+    exact: bool = field(default_factory=lambda:True)
 
 @dataclass
 class DownloadArguments:
     '''download arguments for download module'''
-    lyrics: bool = True
+    lyrics: bool = field(default_factory=lambda:True)
 
 @dataclass
 class MetadataArguments:
     '''metadata arguments for metadata module'''
-    watermark: bool = False
+    watermark: bool = field(default_factory=lambda:False)
 
 @dataclass
 class ConversionArguments:
     '''conversion arguments for ffmpeg module'''
     # ffmpeg/metadata specific
     convert_format: FileFormat = FileFormat.WAV
-    add_metadata: bool = True # add metadata data at all
-    music_brainz: bool = True # use music brainz api to fill missing metadata fields
+    add_metadata: bool = field(default_factory=lambda:True) # add metadata data at all
+    music_brainz: bool = field(default_factory=lambda:True) # use music brainz api to fill missing metadata fields
 
 @dataclass
 class ProgramArguments:
@@ -60,13 +60,13 @@ class ProgramArguments:
     Container for all pipeline specific arguments.
     Also contains common arguments for overall workflow
     '''
-    search_args: SearchArguments
-    convert_args: ConversionArguments
-    download_args: DownloadArguments
-    metadata_args: MetadataArguments
+    search_args: SearchArguments = field(default_factory=lambda:SearchArguments())
+    convert_args: ConversionArguments = field(default_factory=lambda:ConversionArguments())
+    download_args: DownloadArguments = field(default_factory=lambda: DownloadArguments())
+    metadata_args: MetadataArguments = field(default_factory=lambda:MetadataArguments())
 
     #common args below
-    user_confirmation: bool = True #true for requires confirmation
+    user_confirmation: bool = field(default_factory=lambda:True) #true for requires confirmation
 
 ###
 #NOTE SCHEMA DEFINITIONS
