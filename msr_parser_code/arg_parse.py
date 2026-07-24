@@ -50,7 +50,7 @@ def _user_input_parsed(raw_args: list[str]) -> argparse.Namespace:
     # Optional Flag Setting Args
     parser.add_argument("--noexact",
         help="If flag is enabled, will search using the provided search term as a substring",
-        action="store_true",
+        action="store_false",
         default=defaults.search_args.exact)
     
     parser.add_argument("-d", "--diff",
